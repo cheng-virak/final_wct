@@ -30,15 +30,19 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
     timestamp: new Date().toISOString(),
-    service: 'Venue & Event Hall Reservation System API'
+    service: 'Grand Horizon Venue Reservation API'
   });
 });
 
-// Periodic hold expiration check every 60 seconds
+// Periodic hold expiration check
 setInterval(() => {
   autoExpireHolds();
 }, 60000);
 
-app.listen(PORT, () => {
-  console.log(`🚀 Venue Reservation Backend API running on http://localhost:${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Venue Reservation Backend API running on http://localhost:${PORT}`);
+  });
+}
+
+export default app;
