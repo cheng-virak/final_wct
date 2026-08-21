@@ -78,6 +78,15 @@ export const api = {
       method: 'DELETE'
     }),
 
+  // Concierge Calls
+  requestCall: (callData) =>
+    request('/calls/request', {
+      method: 'POST',
+      body: JSON.stringify(callData)
+    }),
+
+  getCalls: () => request('/calls'),
+
   // Analytics
   getAnalytics: () => request('/analytics'),
 

@@ -6,6 +6,7 @@ import venuesRoutes from './routes/venues.js';
 import amenitiesRoutes from './routes/amenities.js';
 import bookingsRoutes from './routes/bookings.js';
 import analyticsRoutes from './routes/analytics.js';
+import callsRoutes from './routes/calls.js';
 import { autoExpireHolds } from './db/database.js';
 import { connectMongoDB, getMongoStatus } from './config/mongodb.js';
 
@@ -31,6 +32,7 @@ app.use('/api/venues', venuesRoutes);
 app.use('/api/amenities', amenitiesRoutes);
 app.use('/api/bookings', bookingsRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/calls', callsRoutes);
 
 // Health check with MongoDB status
 app.get('/api/health', (req, res) => {

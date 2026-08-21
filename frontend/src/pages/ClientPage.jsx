@@ -18,7 +18,8 @@ export default function ClientPage({
   onOpenBookingModal,
   onRefresh,
   onNavigateToAdmin,
-  onOpenLoginModal
+  onOpenLoginModal,
+  onOpenCallModal
 }) {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('venues');
@@ -90,6 +91,7 @@ export default function ClientPage({
         pendingAdminCount={pendingAdminCount}
         onNavigateToAdmin={onNavigateToAdmin}
         onOpenLoginModal={onOpenLoginModal}
+        onOpenCallModal={() => onOpenCallModal && onOpenCallModal()}
       />
 
       {/* Main Client Content */}
@@ -251,6 +253,7 @@ export default function ClientPage({
         onClose={() => setIsDetailModalOpen(false)}
         onBookVenue={(v) => handleOpenBookingForVenue(v)}
         onOpenCalendar={(vId) => handleOpenCalendarForVenue(vId)}
+        onCallVenue={(vName) => onOpenCallModal && onOpenCallModal(vName)}
       />
     </div>
   );

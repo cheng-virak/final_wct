@@ -3,6 +3,7 @@ import ClientPage from './pages/ClientPage';
 import AdminPage from './pages/AdminPage';
 import BookingModal from './components/BookingModal';
 import LoginModal from './components/LoginModal';
+import CallConciergeModal from './components/CallConciergeModal';
 import { api } from './api/client';
 import { useAuth } from './context/AuthContext';
 import { CheckCircle2 } from 'lucide-react';
@@ -28,6 +29,8 @@ export default function App() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [bookingModalInitialData, setBookingModalInitialData] = useState(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isCallModalOpen, setIsCallModalOpen] = useState(false);
+  const [callVenueName, setCallVenueName] = useState(null);
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = 'success') => {
@@ -145,6 +148,10 @@ export default function App() {
           onRefresh={fetchData}
           onNavigateToAdmin={navigateToAdmin}
           onOpenLoginModal={() => setIsLoginModalOpen(true)}
+          onOpenCallModal={(vName = null) => {
+            setCallVenueName(vName);
+            setIsCallModalOpen(true);
+          }}
         />
       )}
 
@@ -163,6 +170,13 @@ export default function App() {
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onSuccess={fetchData}
+      />
+
+      {/* Call Concierge & Priority Hotline Modal */}
+      <CallConciergeModal
+        isOpen={isCallModalOpen}
+        onClose={() => setIsCallModalOpen(false)}
+        venueName={callVenueName}
       />
     </div>
   );
