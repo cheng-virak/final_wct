@@ -11,6 +11,7 @@ build/
 
 # Environment and local configs
 .env
+**/.env
 .env.local
 .env.*.local
 *.log

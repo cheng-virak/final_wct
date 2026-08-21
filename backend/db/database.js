@@ -390,6 +390,12 @@ export const dbMethods = {
   findUserById(id) {
     return db.users.find(u => u.id === Number(id));
   },
+  getUsers() {
+    return [...db.users];
+  },
+  getDemoUsers() {
+    return [...db.users];
+  },
   createUser(userData) {
     const nextId = db.users.length ? Math.max(...db.users.map(u => u.id)) + 1 : 1;
     const newUser = {
@@ -657,3 +663,6 @@ export const dbMethods = {
 
 // Initialize database on startup
 initDB();
+
+export default dbMethods;
+
