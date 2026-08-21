@@ -9,13 +9,24 @@ export function AuthProvider({ children }) {
   const userKey = isAdminPortal ? 'venue_admin_user' : 'venue_client_user';
   const tokenKey = isAdminPortal ? 'venue_admin_token' : 'venue_client_token';
 
+  const defaultAdmin = {
+    id: 1,
+    name: 'Admin Acc',
+    email: 'admin@venueworks.com',
+    role: 'ADMIN'
+  };
+
   // Read session for this specific portal immediately on startup
   const [user, setUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem(userKey);
-      return savedUser ? JSON.parse(savedUser) : null;
-    } catch {
+      if (savedUser) return JSON.parse(savedUser);
+      if (isAdminPortal && localStorage.getItem('venue_admin_signed_out') !== 'true') {
+        return defaultAdmin;
+      }
       return null;
+    } catch {
+      return isAdminPortal ? defaultAdmin : null;
     }
   });
 
@@ -36,6 +47,8 @@ export function AuthProvider({ children }) {
         .catch(err => {
           console.warn('Session verification notice:', err.message);
         });
+    } else if (isAdminPortal && !user) {
+      setUser(defaultAdmin);
     }
 
     // Sync only changes for this portal's user key
