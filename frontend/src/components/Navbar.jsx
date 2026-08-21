@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import SignOutModal from './SignOutModal';
 
 export default function Navbar({ 
   activeTab, 
@@ -28,6 +29,8 @@ export default function Navbar({
   const { user, logout, isAdmin } = useAuth();
   const { lang, toggleLanguage, t } = useLanguage();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
+  const [signOutAlert, setSignOutAlert] = useState(false);
 
   const navItems = [
     { id: 'venues', label: t('venues'), icon: Building2 },
@@ -170,7 +173,7 @@ export default function Navbar({
                   </button>
 
                   <button
-                    onClick={() => { setUserDropdownOpen(false); logout(); }}
+                    onClick={() => { setUserDropdownOpen(false); setIsSignOutModalOpen(true); }}
                     className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-rose-50 text-rose-600 font-semibold flex items-center gap-2 cursor-pointer"
                   >
                     <LogOut className="w-3.5 h-3.5" />
@@ -255,6 +258,32 @@ export default function Navbar({
           </a>
         </div>
       </div>
+
+      {/* Sign Out Confirmation Modal Card */}
+      <SignOutModal
+        isOpen={isSignOutModalOpen}
+        onClose={() => setIsSignOutModalOpen(false)}
+        onConfirm={() => {
+          logout();
+          setSignOutAlert(true);
+          setTimeout(() => setSignOutAlert(false), 3500);
+        }}
+      />
+
+      {/* Floating Small Alert Card on Sign Out */}
+      {signOutAlert && (
+        <div className="fixed top-20 right-4 sm:right-6 z-50 animate-in fade-in slide-in-from-top-3 duration-300">
+          <div className="p-3.5 px-4 bg-slate-900 text-white rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-2.5 text-xs">
+            <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
+              ✓
+            </div>
+            <div>
+              <div className="font-extrabold text-white">Signed Out Successfully</div>
+              <div className="text-[10px] text-slate-400">You are now browsing in guest mode.</div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminPage from './pages/AdminPage';
 import BookingModal from './components/BookingModal';
+import SignOutModal from './components/SignOutModal';
 import { api } from './api/client';
 import { useAuth } from './context/AuthContext';
 import { 
@@ -31,6 +32,7 @@ export default function AdminApp() {
 
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [bookingModalInitialData, setBookingModalInitialData] = useState(null);
+  const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = 'success') => {
@@ -220,7 +222,7 @@ export default function AdminApp() {
         onRefresh={fetchData}
         onOpenBookingModal={handleOpenBookingModal}
         onNavigateToClient={handleNavigateToClient}
-        onOpenLoginModal={logout} // sign out locks the portal
+        onOpenLoginModal={() => setIsSignOutModalOpen(true)}
       />
 
       {/* Booking / Override Modal */}
@@ -231,6 +233,16 @@ export default function AdminApp() {
         venues={venues}
         amenities={amenities}
         onBookingCreated={handleBookingCreated}
+      />
+
+      {/* Admin Sign Out Confirmation Card */}
+      <SignOutModal
+        isOpen={isSignOutModalOpen}
+        onClose={() => setIsSignOutModalOpen(false)}
+        onConfirm={() => {
+          logout();
+          showToast('Administrator signed out. Portal locked.');
+        }}
       />
     </div>
   );
