@@ -7,7 +7,7 @@ import PricingCalculator from '../components/PricingCalculator';
 import CustomerBookings from '../components/CustomerBookings';
 import Footer from '../components/Footer';
 import { useLanguage } from '../context/LanguageContext';
-import { Search, Sparkles } from 'lucide-react';
+import { Search, Sparkles, ShieldCheck, Building2, CheckCircle2, Clock } from 'lucide-react';
 
 export default function ClientPage({
   venues,
@@ -97,20 +97,69 @@ export default function ClientPage({
         {/* ---------------- 1. VENUES TAB ---------------- */}
         {activeTab === 'venues' && (
           <div className="space-y-4 sm:space-y-6">
-            {/* Hero Banner */}
-            <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-2xs space-y-2 relative overflow-hidden">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                <span>{t('heroBadge')}</span>
+            {/* Executive Corporate Hero Banner */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-4 relative overflow-hidden">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-slate-900 text-white tracking-wide uppercase">
+                  <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Grand Horizon International</span>
+                </div>
+                <span className="text-[11px] font-bold text-slate-500">
+                  Institutional Venue & Event Operations
+                </span>
               </div>
 
-              <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-slate-900 leading-snug">
-                {t('heroTitle')}
-              </h1>
+              <div className="space-y-2 max-w-3xl">
+                <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-950 leading-tight">
+                  Premier Executive Venues & Private Suites
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                  Reserve premier ballrooms, glasshouse pavilions, and tech amphitheaters with our certified <strong className="font-bold text-slate-900">48-Hour Provisional Hold Guarantee</strong>. Lock your preferred event dates with zero immediate financial obligation.
+                </p>
+              </div>
 
-              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-3xl">
-                {t('heroDesc')}
-              </p>
+              {/* Serious Trust & Operational Capabilities Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-100 text-xs">
+                <div className="flex items-center gap-2 text-slate-700">
+                  <div className="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                    <Clock className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="font-extrabold text-slate-900">48h Hold Lock</div>
+                    <div className="text-[10px] text-slate-500">Zero upfront billing</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-slate-700">
+                  <div className="w-7 h-7 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+                    <Building2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="font-extrabold text-slate-900">5 Verified Suites</div>
+                    <div className="text-[10px] text-slate-500">Up to 800 guests</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-slate-700">
+                  <div className="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                    <CheckCircle2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="font-extrabold text-slate-900">Live Availability</div>
+                    <div className="text-[10px] text-slate-500">Direct MongoDB ledger</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-slate-700">
+                  <div className="w-7 h-7 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="font-extrabold text-slate-900">Enterprise Admin</div>
+                    <div className="text-[10px] text-slate-500">Audit-ready workflows</div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Filter & Search Bar */}
