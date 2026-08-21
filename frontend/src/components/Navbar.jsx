@@ -4,14 +4,15 @@ import {
   CalendarDays, 
   Calculator, 
   BookmarkCheck, 
-  ShieldCheck, 
   Plus, 
-  Globe,
-  ExternalLink,
-  User,
+  User, 
+  ShieldCheck, 
+  Globe, 
+  ChevronDown, 
   LogOut,
-  ChevronDown,
-  Phone
+  ExternalLink,
+  Phone,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -24,6 +25,7 @@ export default function Navbar({
   onOpenNewBooking, 
   activeHoldsCount = 0, 
   pendingAdminCount = 0,
+  onNavigateToAdmin, 
   onOpenLoginModal,
   onOpenCallModal
 }) {
@@ -42,29 +44,29 @@ export default function Navbar({
 
   return (
     <>
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      {/* Top Luxury Navbar */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-2xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Brand Logo */}
           <div 
-            className="flex items-center gap-2.5 cursor-pointer select-none group" 
+            className="flex items-center gap-2.5 cursor-pointer select-none shrink-0 group" 
             onClick={() => onSelectTab('venues')}
           >
-            <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-2xs group-hover:bg-blue-700 transition-colors">
-              <Building2 className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-xs group-hover:bg-blue-700 transition-colors">
+              <Building2 className="w-4.5 h-4.5" />
             </div>
             <div>
               <span className="text-base font-extrabold tracking-tight text-slate-900 block leading-tight">
                 Grand Horizon
               </span>
-              <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">
+              <span className="text-[9px] font-bold text-blue-600 uppercase tracking-widest block">
                 Hotel & Resort
               </span>
             </div>
           </div>
 
-          {/* Desktop Navigation with Purposeful Icons */}
-          <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 p-1 rounded-full border border-slate-200/60">
+          {/* Center Navigation Links */}
+          <nav className="hidden md:flex items-center gap-1 bg-slate-100/70 p-1 rounded-2xl border border-slate-200/60">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -72,13 +74,13 @@ export default function Navbar({
                 <button
                   key={item.id}
                   onClick={() => onSelectTab(item.id)}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-slate-900 text-white shadow-xs'
+                      ? 'bg-white text-slate-900 shadow-xs'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-blue-400' : 'text-slate-400'}`} />
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
                   <span>{item.label}</span>
 
                   {item.badge > 0 && (
@@ -91,41 +93,38 @@ export default function Navbar({
             })}
           </nav>
 
-          {/* Right Action Tools */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Right Controls */}
+          <div className="flex items-center gap-2 shrink-0">
             {/* Language Switcher */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer border border-slate-200/60"
-              title="Switch Language"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer border border-slate-200/60"
+              title="Switch Language (EN / ខ្មែរ)"
             >
               <Globe className="w-3.5 h-3.5 text-blue-600" />
-              <span>{lang === 'en' ? 'EN' : 'ខ្មែរ'}</span>
+              <span className="text-[11px] font-bold">{lang === 'en' ? 'EN' : 'ខ្មែរ'}</span>
             </button>
 
-            {/* Concierge Direct Hotline */}
+            {/* Concierge Hotline */}
             <button
               onClick={onOpenCallModal}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200/60 transition-colors cursor-pointer"
-              title="Speak with Venue Concierge"
+              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200/60 transition-colors cursor-pointer"
+              title="Speak with Front Desk Concierge"
             >
               <Phone className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="hidden lg:inline">Concierge Hotline</span>
-              <span className="lg:hidden">Call</span>
+              <span>Hotline</span>
             </button>
 
-            {/* Separate Admin Portal Link - Opens in New Page / Tab */}
+            {/* Admin Front Desk Portal Link */}
             <a
               href="/admin.html"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-colors cursor-pointer"
-              title="Open Admin Portal in New Tab"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-colors cursor-pointer"
+              title="Open Hotel Front Desk Portal"
             >
               <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
-              <span className="hidden sm:inline">Admin Portal</span>
-              <span className="sm:hidden">Admin</span>
-              <ExternalLink className="w-3 h-3 text-purple-400 ml-0.5" />
+              <span>Admin</span>
               {pendingAdminCount > 0 && (
                 <span className="px-1.5 py-0.2 rounded-full bg-purple-600 text-white text-[9px] font-bold">
                   {pendingAdminCount}
@@ -133,7 +132,7 @@ export default function Navbar({
               )}
             </a>
 
-            {/* In-App Notifications Bell for Admin Decisions */}
+            {/* Notification Bell */}
             <NotificationBell />
 
             {/* User Account / Sign In Dropdown */}
@@ -141,18 +140,18 @@ export default function Navbar({
               {user ? (
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/80 transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/80 transition-colors cursor-pointer"
                 >
                   <div className="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
                     {user.name?.[0] || 'U'}
                   </div>
-                  <span className="hidden lg:inline max-w-[100px] truncate">{user.name.split(' ')[0]}</span>
+                  <span className="hidden xl:inline max-w-[80px] truncate">{user.name.split(' ')[0]}</span>
                   <ChevronDown className="w-3 h-3 text-slate-400" />
                 </button>
               ) : (
                 <button
                   onClick={onOpenLoginModal}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 transition-colors cursor-pointer"
                 >
                   <User className="w-3.5 h-3.5 text-blue-600" />
                   <span>Log In</span>
@@ -160,30 +159,29 @@ export default function Navbar({
               )}
 
               {/* User Dropdown Menu */}
-              {userDropdownOpen && (
-                <div 
-                  className="absolute right-0 mt-2 w-52 bg-white rounded-2xl p-2 shadow-2xl border border-slate-200 text-xs space-y-1 z-50 animate-in fade-in zoom-in-95 duration-150"
-                  onMouseLeave={() => setUserDropdownOpen(false)}
-                >
-                  <div className="p-2 border-b border-slate-100">
-                    <div className="font-extrabold text-slate-900 truncate">{user?.name}</div>
-                    <div className="text-[10px] text-slate-400 font-mono truncate">{user?.email}</div>
-                    <div className="inline-block mt-1 px-1.5 py-0.2 rounded text-[9px] font-bold bg-blue-50 text-blue-700">
-                      {user?.role}
-                    </div>
+              {userDropdownOpen && user && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl p-2 shadow-2xl border border-slate-200 text-xs space-y-1 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="p-2.5 bg-slate-50 rounded-xl">
+                    <p className="font-extrabold text-slate-900 truncate">{user.name}</p>
+                    <p className="text-[10px] text-slate-500 font-mono truncate">{user.email}</p>
                   </div>
 
-                  <button
-                    onClick={() => { setUserDropdownOpen(false); onOpenLoginModal(); }}
-                    className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-slate-100 text-slate-700 font-semibold flex items-center gap-2 cursor-pointer"
+                  <a
+                    href="/admin.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center gap-2 p-2 rounded-xl text-purple-700 hover:bg-purple-50 font-bold transition-colors"
                   >
-                    <User className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Switch Account / Sign In</span>
-                  </button>
+                    <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
+                    <span>Front Desk Admin</span>
+                  </a>
 
                   <button
-                    onClick={() => { setUserDropdownOpen(false); setIsSignOutModalOpen(true); }}
-                    className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-rose-50 text-rose-600 font-semibold flex items-center gap-2 cursor-pointer"
+                    onClick={() => {
+                      setUserDropdownOpen(false);
+                      setIsSignOutModalOpen(true);
+                    }}
+                    className="w-full flex items-center gap-2 p-2 rounded-xl text-rose-600 hover:bg-rose-50 font-bold transition-colors cursor-pointer"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     <span>Sign Out</span>
@@ -192,104 +190,39 @@ export default function Navbar({
               )}
             </div>
 
-            {/* Book Space Button */}
+            {/* Quick Book Button */}
             <button
-              onClick={() => onOpenNewBooking()}
-              className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-xs active:scale-[0.98] cursor-pointer"
+              onClick={onOpenNewBooking}
+              className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-xs transition-all cursor-pointer whitespace-nowrap"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Book Space</span>
-              <span className="sm:hidden">Book</span>
+              <span>{lang === 'km' ? 'កក់បន្ទប់' : 'Book Room'}</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Floating Modern Mobile Pill Dock */}
-      <div className="md:hidden fixed bottom-5 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
-        <div className="pointer-events-auto bg-slate-900/95 backdrop-blur-xl text-white rounded-full p-1.5 shadow-2xl border border-white/15 flex items-center gap-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => onSelectTab(item.id)}
-                className={`flex items-center gap-1.5 px-2.5 py-2 rounded-full text-xs font-bold transition-all relative cursor-pointer ${
-                  isActive
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {item.badge > 0 && (
-                  <span className="px-1 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[8px] font-mono font-bold">
-                    {item.badge}
-                  </span>
-                )}
-
-                {isActive && (
-                  <span className="text-[11px] font-extrabold tracking-tight">
-                    {item.label}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-
-          {/* Mobile Call Concierge button */}
-          <button
-            onClick={onOpenCallModal}
-            className="flex items-center gap-1 px-2.5 py-2 rounded-full text-xs font-bold text-emerald-400 hover:text-emerald-300"
-            title="Call Concierge"
-          >
-            <Phone className="w-4 h-4" />
-          </button>
-
-          {/* Mobile Login / User button */}
-          <button
-            onClick={onOpenLoginModal}
-            className="flex items-center gap-1 px-2.5 py-2 rounded-full text-xs font-bold text-slate-300 hover:text-white"
-            title="Log In / Switch Account"
-          >
-            <User className="w-4 h-4" />
-          </button>
-
-          {/* Mobile Admin Link to separate page */}
-          <a
-            href="/admin.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 px-2.5 py-2 rounded-full text-xs font-bold text-purple-400 hover:text-purple-300 transition-colors"
-            title="Open Admin Portal"
-          >
-            <ShieldCheck className="w-4 h-4" />
-          </a>
-        </div>
-      </div>
-
-      {/* Sign Out Confirmation Modal Card */}
+      {/* Sign Out Confirmation Modal */}
       <SignOutModal
         isOpen={isSignOutModalOpen}
         onClose={() => setIsSignOutModalOpen(false)}
-        onConfirm={() => {
+        onConfirmSignOut={() => {
           logout();
+          setUserDropdownOpen(false);
+          setIsSignOutModalOpen(false);
           setSignOutAlert(true);
           setTimeout(() => setSignOutAlert(false), 3500);
         }}
+        userName={user?.name}
+        userEmail={user?.email}
       />
 
-      {/* Floating Small Alert Card on Sign Out */}
+      {/* Floating Status Alert Toast after Logout */}
       {signOutAlert && (
-        <div className="fixed top-20 right-4 sm:right-6 z-50 animate-in fade-in slide-in-from-top-3 duration-300">
-          <div className="p-3.5 px-4 bg-slate-900 text-white rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-2.5 text-xs">
-            <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
-              ✓
-            </div>
-            <div>
-              <div className="font-extrabold text-white">Signed Out Successfully</div>
-              <div className="text-[10px] text-slate-400">You are now browsing in guest mode.</div>
-            </div>
+        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="px-4 py-3 rounded-2xl bg-slate-900 text-white border border-slate-800 shadow-2xl flex items-center gap-2.5 text-xs font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>✓ {lang === 'km' ? 'បានចាកចេញដោយជោគជ័យ' : 'Signed Out Successfully'}</span>
           </div>
         </div>
       )}
