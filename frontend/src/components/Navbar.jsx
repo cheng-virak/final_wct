@@ -34,10 +34,10 @@ export default function Navbar({
   const [signOutAlert, setSignOutAlert] = useState(false);
 
   const navItems = [
-    { id: 'venues', label: t('venues'), icon: Building2 },
+    { id: 'venues', label: t('roomsSuites'), icon: Building2 },
     { id: 'calendar', label: t('calendar'), icon: CalendarDays },
     { id: 'calculator', label: t('pricing'), icon: Calculator },
-    { id: 'my-bookings', label: t('myHolds'), icon: BookmarkCheck, badge: activeHoldsCount }
+    { id: 'my-bookings', label: t('myBookings'), icon: BookmarkCheck, badge: activeHoldsCount }
   ];
 
   return (
@@ -53,9 +53,14 @@ export default function Navbar({
             <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-2xs group-hover:bg-blue-700 transition-colors">
               <Building2 className="w-4 h-4" />
             </div>
-            <span className="text-base font-extrabold tracking-tight text-slate-900">
-              Grand Horizon
-            </span>
+            <div>
+              <span className="text-base font-extrabold tracking-tight text-slate-900 block leading-tight">
+                Grand Horizon
+              </span>
+              <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">
+                Hotel & Resort
+              </span>
+            </div>
           </div>
 
           {/* Desktop Navigation with Purposeful Icons */}

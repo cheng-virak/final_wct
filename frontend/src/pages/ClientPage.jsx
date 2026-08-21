@@ -31,12 +31,12 @@ export default function ClientPage({
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const categories = [
-    { label: t('allSpaces'), value: 'all' },
-    { label: t('ballrooms'), value: 'Ballroom' },
-    { label: t('glassPavilions'), value: 'Glass Pavilion' },
-    { label: t('amphitheaters'), value: 'Amphitheater' },
-    { label: t('rooftops'), value: 'Rooftop Terrace' },
-    { label: t('boardrooms'), value: 'Boardroom' }
+    { label: t('allRooms'), value: 'all' },
+    { label: t('oceanSuites'), value: 'Ocean Suite' },
+    { label: t('penthouses'), value: 'Penthouse' },
+    { label: t('poolVillas'), value: 'Pool Villa' },
+    { label: t('deluxeRooms'), value: 'Deluxe Room' },
+    { label: t('familySuites'), value: 'Family Suite' }
   ];
 
   const filteredVenues = venues.filter((v) => {
@@ -50,7 +50,7 @@ export default function ClientPage({
   const handleOpenBookingForVenue = (venue) => {
     onOpenBookingModal({
       venue_id: venue.id,
-      guest_count: Math.round(venue.capacity * 0.6)
+      guest_count: 2
     });
   };
 
@@ -63,8 +63,8 @@ export default function ClientPage({
     onOpenBookingModal({
       venue_id: slotData.venue_id,
       date: slotData.date,
-      start_time: slotData.startTime || '10:00',
-      end_time: slotData.endTime || '16:00'
+      start_time: slotData.startTime || '14:00',
+      end_time: slotData.endTime || '12:00'
     });
   };
 
@@ -96,38 +96,38 @@ export default function ClientPage({
 
       {/* Main Client Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
-        {/* ---------------- 1. VENUES TAB ---------------- */}
+        {/* ---------------- 1. ROOMS & SUITES TAB ---------------- */}
         {activeTab === 'venues' && (
           <div className="space-y-4 sm:space-y-6">
-            {/* Executive Corporate Hero Banner */}
+            {/* Luxury Hotel Hero Banner */}
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-4 relative overflow-hidden">
               <div className="flex flex-wrap items-center gap-2">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-slate-900 text-white tracking-wide uppercase">
                   <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
-                  <span>Grand Horizon International</span>
+                  <span>Grand Horizon Hotel & Resort</span>
                 </div>
-                <span className="text-[11px] font-bold text-slate-500">
-                  Institutional Venue & Event Operations
+                <span className="text-[11px] font-bold text-blue-600">
+                  {t('heroBadge')}
                 </span>
               </div>
 
               <div className="space-y-2 max-w-3xl">
                 <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-950 leading-tight">
-                  Premier Executive Venues & Private Suites
+                  {t('heroTitle')}
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
-                  Reserve premier ballrooms, glasshouse pavilions, and tech amphitheaters with our certified <strong className="font-bold text-slate-900">48-Hour Provisional Hold Guarantee</strong>. Lock your preferred event dates with zero immediate financial obligation.
+                  {t('heroDesc')}
                 </p>
               </div>
 
-              {/* Serious Trust & Operational Capabilities Grid */}
+              {/* Serious Trust & Hotel Highlights Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-100 text-xs">
                 <div className="flex items-center gap-2 text-slate-700">
                   <div className="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
                     <Clock className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="font-extrabold text-slate-900">48h Hold Lock</div>
+                    <div className="font-extrabold text-slate-900">{t('highlightHold')}</div>
                     <div className="text-[10px] text-slate-500">Zero upfront billing</div>
                   </div>
                 </div>
@@ -137,28 +137,28 @@ export default function ClientPage({
                     <Building2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="font-extrabold text-slate-900">5 Verified Suites</div>
-                    <div className="text-[10px] text-slate-500">Up to 800 guests</div>
+                    <div className="font-extrabold text-slate-900">Luxury Rooms & Villas</div>
+                    <div className="text-[10px] text-slate-500">Ocean, Pool & Garden</div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 text-slate-700">
                   <div className="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-                    <CheckCircle2 className="w-4 h-4" />
+                    <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="font-extrabold text-slate-900">Live Availability</div>
-                    <div className="text-[10px] text-slate-500">Direct MongoDB ledger</div>
+                    <div className="font-extrabold text-slate-900">{t('highlightCustom')}</div>
+                    <div className="text-[10px] text-slate-500">5-Star Concierge</div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 text-slate-700">
-                  <div className="w-7 h-7 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold">
-                    <ShieldCheck className="w-4 h-4" />
+                  <div className="w-7 h-7 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                    <CheckCircle2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="font-extrabold text-slate-900">Enterprise Admin</div>
-                    <div className="text-[10px] text-slate-500">Audit-ready workflows</div>
+                    <div className="font-extrabold text-slate-900">{t('highlightTransparent')}</div>
+                    <div className="text-[10px] text-slate-500">No hidden fees</div>
                   </div>
                 </div>
               </div>

@@ -136,7 +136,7 @@ export default function AdminPage({
                   Grand Horizon
                 </span>
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-purple-100 text-purple-800 border border-purple-200/80 uppercase tracking-wider">
-                  Admin Ops
+                  {lang === 'km' ? 'គ្រប់គ្រងសណ្ឋាគារ' : 'Hotel Front Desk'}
                 </span>
               </div>
             </div>

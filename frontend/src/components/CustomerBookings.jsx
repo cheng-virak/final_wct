@@ -178,17 +178,17 @@ export default function CustomerBookings({ bookings = [], onRefresh, onOpenNewBo
                   <div className="flex items-center gap-1.5">
                     {b.status === 'CONFIRMED' && (
                       <span className="text-emerald-700 font-extrabold flex items-center gap-1">
-                        ✓ Approved by Venue Management · Official Reservation
+                        {lang === 'km' ? '✓ បញ្ជាក់ការស្នាក់នៅ · អនុម័តដោយផ្នែកទទួលភ្ញៀវ' : '✓ Confirmed Stay · Approved by Hotel Front Desk'}
                       </span>
                     )}
                     {b.status === 'HELD' && (
                       <span className="text-amber-800 font-bold flex items-center gap-1">
-                        ⏳ 48-Hour Provisional Hold · Rate Locked & Pending Payment/Review
+                        {lang === 'km' ? '⏳ ចាក់សោបន្ទប់ ៤៨ម៉ោង · រក្សាតម្លៃបន្ទប់ទុក' : '⏳ 48-Hour Free Room Hold · Room & Rate Locked'}
                       </span>
                     )}
                     {b.status === 'CANCELLED' && (
                       <span className="text-slate-500 font-medium flex items-center gap-1">
-                        ✕ Released & Slot Cancelled by Management
+                        {lang === 'km' ? '✕ បានលុបចោលការចាក់សោ' : '✕ Room Hold Released & Cancelled'}
                       </span>
                     )}
                   </div>
