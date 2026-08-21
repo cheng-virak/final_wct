@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminPage from './pages/AdminPage';
 import BookingModal from './components/BookingModal';
+import LoginModal from './components/LoginModal';
 import { api } from './api/client';
 import { useAuth } from './context/AuthContext';
 import { CheckCircle2 } from 'lucide-react';
@@ -15,6 +16,7 @@ export default function AdminApp() {
 
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [bookingModalInitialData, setBookingModalInitialData] = useState(null);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = 'success') => {
@@ -40,7 +42,7 @@ export default function AdminApp() {
   };
 
   useEffect(() => {
-    // Automatically set active user as Elena Rostova (Admin) on the admin page
+    // Automatically set active user as Elena Rostova (Admin) on the admin page if not already admin
     if (demoUsers?.length > 0) {
       const adminUser = demoUsers.find(u => u.role === 'ADMIN') || demoUsers[0];
       switchUser(adminUser);
@@ -88,6 +90,7 @@ export default function AdminApp() {
         onRefresh={fetchData}
         onOpenBookingModal={handleOpenBookingModal}
         onNavigateToClient={handleNavigateToClient}
+        onOpenLoginModal={() => setIsLoginModalOpen(true)}
       />
 
       {/* Booking / Override Modal */}
@@ -98,6 +101,13 @@ export default function AdminApp() {
         venues={venues}
         amenities={amenities}
         onBookingCreated={handleBookingCreated}
+      />
+
+      {/* Login & Account Switcher Modal */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onSuccess={fetchData}
       />
     </div>
   );

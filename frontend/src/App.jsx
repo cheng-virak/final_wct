@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ClientPage from './pages/ClientPage';
 import AdminPage from './pages/AdminPage';
 import BookingModal from './components/BookingModal';
+import LoginModal from './components/LoginModal';
 import { api } from './api/client';
 import { useAuth } from './context/AuthContext';
 import { CheckCircle2 } from 'lucide-react';
@@ -26,6 +27,7 @@ export default function App() {
 
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [bookingModalInitialData, setBookingModalInitialData] = useState(null);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = 'success') => {
@@ -142,6 +144,7 @@ export default function App() {
           onOpenBookingModal={handleOpenBookingModal}
           onRefresh={fetchData}
           onNavigateToAdmin={navigateToAdmin}
+          onOpenLoginModal={() => setIsLoginModalOpen(true)}
         />
       )}
 
@@ -153,6 +156,13 @@ export default function App() {
         venues={venues}
         amenities={amenities}
         onBookingCreated={handleBookingCreated}
+      />
+
+      {/* Login & Register Modal */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onSuccess={fetchData}
       />
     </div>
   );

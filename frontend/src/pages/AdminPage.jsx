@@ -38,7 +38,8 @@ export default function AdminPage({
   amenities = [],
   onRefresh,
   onOpenBookingModal,
-  onNavigateToClient
+  onNavigateToClient,
+  onOpenLoginModal
 }) {
   const { user } = useAuth();
   const { lang, toggleLanguage, t } = useLanguage();
@@ -207,6 +208,18 @@ export default function AdminPage({
               title="Refresh Real-time Data"
             >
               <RefreshCw className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Admin Profile / Switcher button */}
+            <button
+              onClick={onOpenLoginModal}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 transition-colors cursor-pointer"
+              title="Switch Account / Sign In"
+            >
+              <div className="w-5 h-5 rounded-full bg-purple-600 text-white text-[10px] font-bold flex items-center justify-center">
+                {user?.name?.[0] || 'A'}
+              </div>
+              <span className="hidden sm:inline max-w-[110px] truncate">{user?.name?.split(' ')[0] || 'Admin'}</span>
             </button>
 
             <button

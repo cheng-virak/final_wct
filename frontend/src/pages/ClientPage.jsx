@@ -17,7 +17,8 @@ export default function ClientPage({
   pendingAdminCount,
   onOpenBookingModal,
   onRefresh,
-  onNavigateToAdmin
+  onNavigateToAdmin,
+  onOpenLoginModal
 }) {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('venues');
@@ -88,6 +89,7 @@ export default function ClientPage({
         activeHoldsCount={activeHoldsCount}
         pendingAdminCount={pendingAdminCount}
         onNavigateToAdmin={onNavigateToAdmin}
+        onOpenLoginModal={onOpenLoginModal}
       />
 
       {/* Main Client Content */}
