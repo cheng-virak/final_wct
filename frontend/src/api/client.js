@@ -90,7 +90,7 @@ export const api = {
   // Analytics
   getAnalytics: () => request('/analytics'),
 
-  // Auth & Demo Users
+  // Auth & Account Management
   login: (email, password) =>
     request('/auth/login', {
       method: 'POST',
@@ -104,5 +104,21 @@ export const api = {
     }),
 
   getProfile: () => request('/auth/me'),
-  getDemoUsers: () => request('/auth/demo-users')
+  getDemoUsers: () => request('/auth/demo-users'),
+
+  getUsers: () => request('/auth/users'),
+  createUser: (userData) =>
+    request('/auth/users', {
+      method: 'POST',
+      body: JSON.stringify(userData)
+    }),
+  updateUser: (id, userData) =>
+    request(`/auth/users/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(userData)
+    }),
+  deleteUser: (id) =>
+    request(`/auth/users/${id}`, {
+      method: 'DELETE'
+    })
 };

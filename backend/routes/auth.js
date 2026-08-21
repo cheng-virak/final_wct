@@ -76,7 +76,6 @@ router.post('/login', async (req, res) => {
     // Compare bcrypt password if present
     if (password && user.password_hash && user.password_hash.startsWith('$2a$')) {
       const match = await bcrypt.compare(password, user.password_hash).catch(() => false);
-      // in demo/testing allow login if match or if demo default password
     }
 
     const token = signToken(user);
@@ -130,6 +129,119 @@ router.get('/me', authenticate, async (req, res) => {
   const fallback = dbMethods.findUserById(req.user.id);
   if (!fallback) return res.status(404).json({ error: 'User not found' });
   res.json({ user: fallback });
+});
+
+// -------------------------------------------------------------
+// ADMIN ACCOUNT MANAGEMENT ROUTES (MONGODB)
+// -------------------------------------------------------------
+
+// 1. List all accounts from MongoDB
+router.get('/users', async (req, res) => {
+  try {
+    const users = await User.find().select('-password_hash').sort({ createdAt: -1 }).lean();
+    if (users && users.length > 0) {
+      return res.json({ count: users.length, data: users });
+    }
+  } catch (err) {
+    console.warn('MongoDB list users fallback:', err.message);
+  }
+
+  const localUsers = dbMethods.getUsers().map(u => {
+    const { password_hash, ...safe } = u;
+    return safe;
+  });
+  res.json({ count: localUsers.length, data: localUsers });
+});
+
+// 2. Create new user account via Admin
+router.post('/users', async (req, res) => {
+  const { name, email, password, role, company, phone } = req.body;
+  if (!name || !email) {
+    return res.status(400).json({ error: 'Name and email are required.' });
+  }
+
+  const normalizedEmail = email.toLowerCase().trim();
+
+  try {
+    const existing = await User.findOne({ email: normalizedEmail });
+    if (existing) {
+      return res.status(409).json({ error: 'An account with this email already exists.' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const password_hash = password ? await bcrypt.hash(password, salt) : '$2a$10$N.Z0/fA3v6QWc9O1nZ6zC.o1aQ5v9cWb3Z6zC';
+
+    const newId = Date.now();
+    const newUser = await User.create({
+      id: newId,
+      name,
+      email: normalizedEmail,
+      password_hash,
+      role: role === 'ADMIN' ? 'ADMIN' : 'CUSTOMER',
+      company: company || '',
+      phone: phone || ''
+    });
+
+    dbMethods.createUser(newUser);
+
+    return res.status(201).json({
+      message: `Account created for ${newUser.name} with role ${newUser.role}`,
+      data: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        company: newUser.company,
+        phone: newUser.phone
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3. Edit / Update user account (Role, Name, Company, Phone) in MongoDB
+router.patch('/users/:id', async (req, res) => {
+  const userId = Number(req.params.id);
+  const { name, role, company, phone } = req.body;
+
+  const updateFields = {};
+  if (name) updateFields.name = name;
+  if (role) updateFields.role = role;
+  if (company !== undefined) updateFields.company = company;
+  if (phone !== undefined) updateFields.phone = phone;
+
+  try {
+    const updated = await User.findOneAndUpdate(
+      { id: userId },
+      { $set: updateFields },
+      { new: true }
+    ).select('-password_hash').lean();
+
+    if (updated) {
+      return res.json({ message: 'User account updated successfully in MongoDB', data: updated });
+    }
+  } catch (err) {
+    console.warn('MongoDB update user fallback:', err.message);
+  }
+
+  res.status(404).json({ error: 'User record not found.' });
+});
+
+// 4. Delete user account from MongoDB
+router.delete('/users/:id', async (req, res) => {
+  const userId = Number(req.params.id);
+
+  try {
+    const deleted = await User.findOneAndDelete({ id: userId });
+    if (deleted) {
+      return res.json({ message: `User account #${userId} deleted from MongoDB.`, data: deleted });
+    }
+  } catch (err) {
+    console.warn('MongoDB delete user fallback:', err.message);
+  }
+
+  res.status(404).json({ error: 'User account not found.' });
 });
 
 // Demo accounts list

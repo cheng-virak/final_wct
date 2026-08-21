@@ -23,12 +23,14 @@ import {
   Table as TableIcon,
   Calendar,
   Sparkles,
-  Trash2
+  Trash2,
+  Users
 } from 'lucide-react';
 import HoldCountdown from '../components/HoldCountdown';
 import AnalyticsOverview from '../components/AnalyticsOverview';
 import AdminHoldManager from '../components/AdminHoldManager';
 import InteractiveCalendar from '../components/InteractiveCalendar';
+import AdminAccountManager from '../components/AdminAccountManager';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -209,6 +211,18 @@ export default function AdminPage({
               <CalendarDays className="w-3.5 h-3.5" />
               <span>Master Calendar</span>
             </button>
+
+            <button
+              onClick={() => setAdminTab('accounts')}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                adminTab === 'accounts'
+                  ? 'bg-slate-900 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>Account Manager</span>
+            </button>
           </div>
 
           {/* Right Action Tools */}
@@ -285,6 +299,14 @@ export default function AdminPage({
             }`}
           >
             Calendar
+          </button>
+          <button
+            onClick={() => setAdminTab('accounts')}
+            className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+              adminTab === 'accounts' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900 bg-white border border-slate-200'
+            }`}
+          >
+            Accounts
           </button>
         </div>
       </header>
@@ -681,6 +703,11 @@ export default function AdminPage({
               onVenueFilterChange={() => {}}
             />
           </div>
+        )}
+
+        {/* ---------------- SUB-TAB 5: ACCOUNTS & USERS ---------------- */}
+        {adminTab === 'accounts' && (
+          <AdminAccountManager />
         )}
       </main>
 
