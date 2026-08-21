@@ -30,7 +30,7 @@ function generateSeedData() {
   const users = [
     {
       id: 1,
-      name: 'Elena Rostova (Venue Director)',
+      name: 'Admin Acc',
       email: 'admin@venueworks.com',
       password_hash: '$2a$10$N.Z0/fA3v6QWc9O1nZ6zC.o1aQ5v9cWb3Z6zC.o1aQ5v9cWb3Z6zC', // 'admin123'
       role: 'ADMIN',
