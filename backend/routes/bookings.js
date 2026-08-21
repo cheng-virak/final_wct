@@ -303,4 +303,33 @@ router.post('/:id/extend-hold', async (req, res) => {
   res.json({ message: `Hold extended by ${additional_hours} hours`, data: localUpdated });
 });
 
+// 7. Delete Booking / Hold Permanently from MongoDB
+router.delete('/:id', async (req, res) => {
+  const bookingId = Number(req.params.id);
+
+  try {
+    const deletedDoc = await Booking.findOneAndDelete({ id: bookingId });
+    dbMethods.deleteBooking(bookingId);
+
+    if (deletedDoc) {
+      return res.json({
+        message: `Booking #${bookingId} successfully deleted from MongoDB database.`,
+        data: deletedDoc
+      });
+    }
+  } catch (err) {
+    console.warn('MongoDB delete fallback:', err.message);
+  }
+
+  const localDeleted = dbMethods.deleteBooking(bookingId);
+  if (!localDeleted) {
+    return res.status(404).json({ error: 'Booking record not found' });
+  }
+
+  res.json({
+    message: `Booking #${bookingId} successfully deleted.`,
+    data: localDeleted
+  });
+});
+
 export default router;

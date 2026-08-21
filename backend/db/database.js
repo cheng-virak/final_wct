@@ -604,6 +604,14 @@ export const dbMethods = {
     return this.getBookingById(id);
   },
 
+  deleteBooking(id) {
+    const idx = db.bookings.findIndex(b => b.id === Number(id));
+    if (idx === -1) return false;
+    const removed = db.bookings.splice(idx, 1)[0];
+    saveDB();
+    return removed;
+  },
+
   // Analytics Aggregations
   getAnalytics() {
     autoExpireHolds();

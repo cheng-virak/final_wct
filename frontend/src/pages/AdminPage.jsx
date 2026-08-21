@@ -22,7 +22,8 @@ import {
   LayoutGrid,
   Table as TableIcon,
   Calendar,
-  Sparkles
+  Sparkles,
+  Trash2
 } from 'lucide-react';
 import HoldCountdown from '../components/HoldCountdown';
 import AnalyticsOverview from '../components/AnalyticsOverview';
@@ -78,6 +79,24 @@ export default function AdminPage({
       onRefresh();
     } catch (err) {
       alert(err.message || 'Failed to extend hold');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeleteBooking = async (bookingId, eventName = 'this reservation') => {
+    if (!window.confirm(`Are you sure you want to permanently delete "${eventName}"? This cannot be undone.`)) {
+      return;
+    }
+    setActionLoading(bookingId);
+    try {
+      await api.deleteBooking(bookingId);
+      onRefresh();
+      if (selectedBookingDetail?.id === bookingId) {
+        setSelectedBookingDetail(null);
+      }
+    } catch (err) {
+      alert(err.message || 'Failed to delete booking');
     } finally {
       setActionLoading(null);
     }
@@ -533,6 +552,15 @@ export default function AdminPage({
                                       Reopen
                                     </button>
                                   )}
+
+                                  <button
+                                    onClick={() => handleDeleteBooking(b.id, b.event_name)}
+                                    disabled={actionLoading === b.id}
+                                    className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 hover:text-rose-700 border border-transparent hover:border-rose-200 transition-colors cursor-pointer"
+                                    title="Permanently delete reservation"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
                                 </div>
                               </td>
                             </tr>
@@ -585,28 +613,38 @@ export default function AdminPage({
                       </div>
                     </div>
 
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
-                      {b.status === 'HELD' && (
-                        <>
-                          <button
-                            onClick={() => handleExtend(b.id)}
-                            className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-700 hover:bg-slate-200"
-                          >
-                            +24h
-                          </button>
-                          <button
-                            onClick={() => handleUpdateStatus(b.id, 'CONFIRMED')}
-                            className="px-3 py-1 rounded-lg text-[11px] font-bold bg-emerald-600 text-white hover:bg-emerald-700"
-                          >
-                            Approve
-                          </button>
-                        </>
-                      )}
-                      {b.status === 'CONFIRMED' && (
-                        <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Locked
-                        </span>
-                      )}
+                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1.5" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => handleDeleteBooking(b.id, b.event_name)}
+                        disabled={actionLoading === b.id}
+                        className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer"
+                        title="Delete reservation"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                      <div className="flex items-center gap-1.5">
+                        {b.status === 'HELD' && (
+                          <>
+                            <button
+                              onClick={() => handleExtend(b.id)}
+                              className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer"
+                            >
+                              +24h
+                            </button>
+                            <button
+                              onClick={() => handleUpdateStatus(b.id, 'CONFIRMED')}
+                              className="px-3 py-1 rounded-lg text-[11px] font-bold bg-emerald-600 text-white hover:bg-emerald-700 cursor-pointer"
+                            >
+                              Approve
+                            </button>
+                          </>
+                        )}
+                        {b.status === 'CONFIRMED' && (
+                          <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Locked
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -661,106 +699,95 @@ export default function AdminPage({
               </div>
               <button
                 onClick={() => setSelectedBookingDetail(null)}
-                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                className="p-1 rounded-full text-slate-400 hover:bg-slate-100"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs text-slate-600">
-              <div className="bg-slate-50 p-3.5 rounded-2xl space-y-1.5">
-                <div className="font-bold text-slate-900 flex items-center justify-between">
-                  <span>Venue Space</span>
-                  <span className="text-blue-600">{selectedBookingDetail.venue_name}</span>
+            <div className="space-y-3 text-xs">
+              <div className="p-3 bg-slate-50 rounded-2xl space-y-1.5">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Venue Space:</span>
+                  <span className="font-bold text-slate-900">{selectedBookingDetail.venue_name}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span>Schedule</span>
-                  <span className="font-mono font-medium text-slate-800">
-                    {new Date(selectedBookingDetail.start_time).toLocaleString()} – {new Date(selectedBookingDetail.end_time).toLocaleTimeString()}
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Client / Booker:</span>
+                  <span className="font-bold text-slate-900">{selectedBookingDetail.user_name || 'Client'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Total Price:</span>
+                  <span className="font-extrabold text-purple-600 font-mono text-sm">
+                    ${Number(selectedBookingDetail.total_price || 0).toLocaleString()}
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span>Guests</span>
-                  <span className="font-medium text-slate-800">{selectedBookingDetail.guest_count} guests</span>
-                </div>
-              </div>
-
-              <div className="bg-slate-50 p-3.5 rounded-2xl space-y-1.5">
-                <div className="font-bold text-slate-900">Client Information</div>
-                <div className="flex items-center justify-between">
-                  <span>Contact Name</span>
-                  <span className="font-semibold text-slate-800">{selectedBookingDetail.user_name}</span>
-                </div>
-                <div className="flex items-center justify-between font-mono">
-                  <span>Email</span>
-                  <span className="text-slate-800">{selectedBookingDetail.user_email}</span>
-                </div>
-                {selectedBookingDetail.user_company && (
-                  <div className="flex items-center justify-between">
-                    <span>Company</span>
-                    <span className="text-slate-800">{selectedBookingDetail.user_company}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between p-3.5 bg-purple-50/60 rounded-2xl border border-purple-100">
-                <div>
-                  <div className="text-[11px] text-purple-700 font-bold uppercase">Total Invoice Value</div>
-                  <div className="text-xl font-extrabold font-mono text-purple-950">
-                    ${Number(selectedBookingDetail.total_price || 0).toLocaleString()}
-                  </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Status:</span>
+                  <span className="font-bold text-slate-900">{selectedBookingDetail.status}</span>
                 </div>
                 <HoldCountdown expiresAt={selectedBookingDetail.hold_expires_at} status={selectedBookingDetail.status} compact={false} />
               </div>
             </div>
 
             {/* Action Buttons inside modal */}
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-              {selectedBookingDetail.status === 'HELD' && (
-                <>
-                  <button
-                    onClick={() => handleExtend(selectedBookingDetail.id)}
-                    disabled={actionLoading === selectedBookingDetail.id}
-                    className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-colors cursor-pointer"
-                  >
-                    +24h Extension
-                  </button>
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+              <button
+                onClick={() => handleDeleteBooking(selectedBookingDetail.id, selectedBookingDetail.event_name)}
+                disabled={actionLoading === selectedBookingDetail.id}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors flex items-center gap-1.5 cursor-pointer"
+                title="Permanently delete from database"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete</span>
+              </button>
+
+              <div className="flex items-center gap-2">
+                {selectedBookingDetail.status === 'HELD' && (
+                  <>
+                    <button
+                      onClick={() => handleExtend(selectedBookingDetail.id)}
+                      disabled={actionLoading === selectedBookingDetail.id}
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-colors cursor-pointer"
+                    >
+                      +24h Extension
+                    </button>
+                    <button
+                      onClick={() => handleUpdateStatus(selectedBookingDetail.id, 'CANCELLED')}
+                      disabled={actionLoading === selectedBookingDetail.id}
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
+                    >
+                      Release Hold
+                    </button>
+                    <button
+                      onClick={() => handleUpdateStatus(selectedBookingDetail.id, 'CONFIRMED')}
+                      disabled={actionLoading === selectedBookingDetail.id}
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all cursor-pointer"
+                    >
+                      Approve Booking
+                    </button>
+                  </>
+                )}
+
+                {selectedBookingDetail.status === 'CONFIRMED' && (
                   <button
                     onClick={() => handleUpdateStatus(selectedBookingDetail.id, 'CANCELLED')}
                     disabled={actionLoading === selectedBookingDetail.id}
-                    className="px-3.5 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer"
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
                   >
-                    Release Hold
+                    Cancel Reservation
                   </button>
+                )}
+
+                {selectedBookingDetail.status === 'CANCELLED' && (
                   <button
                     onClick={() => handleUpdateStatus(selectedBookingDetail.id, 'CONFIRMED')}
                     disabled={actionLoading === selectedBookingDetail.id}
-                    className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all cursor-pointer"
+                    className="px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
                   >
-                    Approve Booking
+                    Reactivate Reservation
                   </button>
-                </>
-              )}
-
-              {selectedBookingDetail.status === 'CONFIRMED' && (
-                <button
-                  onClick={() => handleUpdateStatus(selectedBookingDetail.id, 'CANCELLED')}
-                  disabled={actionLoading === selectedBookingDetail.id}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer"
-                >
-                  Cancel Reservation
-                </button>
-              )}
-
-              {selectedBookingDetail.status === 'CANCELLED' && (
-                <button
-                  onClick={() => handleUpdateStatus(selectedBookingDetail.id, 'CONFIRMED')}
-                  disabled={actionLoading === selectedBookingDetail.id}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
-                >
-                  Reactivate Reservation
-                </button>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>

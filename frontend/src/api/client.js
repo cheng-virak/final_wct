@@ -68,6 +68,11 @@ export const api = {
       body: JSON.stringify({ additional_hours })
     }),
 
+  deleteBooking: (id) =>
+    request(`/bookings/${id}`, {
+      method: 'DELETE'
+    }),
+
   // Analytics
   getAnalytics: () => request('/analytics'),
 

@@ -61,6 +61,19 @@ export default function CustomerBookings({ bookings = [], onRefresh, onOpenNewBo
     }
   };
 
+  const handleDeleteBooking = async (bookingId) => {
+    if (!window.confirm('Are you sure you want to permanently delete this reservation record?')) return;
+    setActionLoading(bookingId);
+    try {
+      await api.deleteBooking(bookingId);
+      onRefresh();
+    } catch (err) {
+      alert(err.message || 'Failed to delete booking');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-4">
       {/* Compact Header */}
@@ -161,33 +174,46 @@ export default function CustomerBookings({ bookings = [], onRefresh, onOpenNewBo
                 </div>
 
                 {/* Actions for active hold */}
-                {b.status === 'HELD' && (
-                  <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                    <button
-                      onClick={() => handleExtendHold(b.id)}
-                      disabled={actionLoading === b.id}
-                      className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer"
-                    >
-                      +24h
-                    </button>
+                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <button
+                    onClick={() => handleDeleteBooking(b.id)}
+                    disabled={actionLoading === b.id}
+                    className="px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer"
+                    title="Permanently delete booking"
+                  >
+                    Delete
+                  </button>
 
-                    <button
-                      onClick={() => handleCancelHold(b.id)}
-                      disabled={actionLoading === b.id}
-                      className="px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 cursor-pointer"
-                    >
-                      Release
-                    </button>
+                  <div className="flex items-center gap-2">
+                    {b.status === 'HELD' && (
+                      <>
+                        <button
+                          onClick={() => handleExtendHold(b.id)}
+                          disabled={actionLoading === b.id}
+                          className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer"
+                        >
+                          +24h
+                        </button>
 
-                    <button
-                      onClick={() => handleConfirmHold(b.id)}
-                      disabled={actionLoading === b.id}
-                      className="px-3.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs cursor-pointer"
-                    >
-                      Confirm
-                    </button>
+                        <button
+                          onClick={() => handleCancelHold(b.id)}
+                          disabled={actionLoading === b.id}
+                          className="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                        >
+                          Release
+                        </button>
+
+                        <button
+                          onClick={() => handleConfirmHold(b.id)}
+                          disabled={actionLoading === b.id}
+                          className="px-3.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs cursor-pointer"
+                        >
+                          Confirm
+                        </button>
+                      </>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             );
           })
