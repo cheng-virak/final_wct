@@ -4,7 +4,7 @@ import { api } from '../api/client';
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  // Start as logged out (null) unless a user token/profile is saved in localStorage
+  // Read saved session immediately on startup so refresh never loses login
   const [user, setUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem('venue_current_user');
@@ -18,10 +18,34 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch available demo users for quick role switcher
-    api.getDemoUsers()
-      .then(users => setDemoUsers(users))
-      .catch(err => console.error('Failed to load demo users', err));
+    // If token exists, verify and refresh user profile from backend
+    const token = localStorage.getItem('venue_auth_token');
+    if (token) {
+      api.getProfile()
+        .then(res => {
+          if (res?.user) {
+            setUser(res.user);
+            localStorage.setItem('venue_current_user', JSON.stringify(res.user));
+          }
+        })
+        .catch(err => {
+          console.warn('Session verification notice:', err.message);
+        });
+    }
+
+    // Listen to storage events to sync auth state across tabs and separate pages (index.html & admin.html)
+    const handleStorageChange = (e) => {
+      if (e.key === 'venue_current_user') {
+        try {
+          setUser(e.newValue ? JSON.parse(e.newValue) : null);
+        } catch {
+          setUser(null);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const switchUser = (selectedUser) => {
@@ -37,9 +61,13 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const res = await api.login(email, password);
-      localStorage.setItem('venue_auth_token', res.token);
-      localStorage.setItem('venue_current_user', JSON.stringify(res.user));
-      setUser(res.user);
+      if (res.token) {
+        localStorage.setItem('venue_auth_token', res.token);
+      }
+      if (res.user) {
+        localStorage.setItem('venue_current_user', JSON.stringify(res.user));
+        setUser(res.user);
+      }
       return res.user;
     } finally {
       setLoading(false);
