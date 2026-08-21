@@ -24,9 +24,9 @@ export default function AdminApp() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Admin login form state
-  const [adminEmail, setAdminEmail] = useState('');
-  const [adminPassword, setAdminPassword] = useState('');
+  // Admin login form state (pre-filled with default Admin credentials)
+  const [adminEmail, setAdminEmail] = useState('admin@venueworks.com');
+  const [adminPassword, setAdminPassword] = useState('admin123');
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
 
