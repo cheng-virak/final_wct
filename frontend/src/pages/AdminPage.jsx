@@ -25,7 +25,8 @@ import {
   Sparkles,
   Trash2,
   Users,
-  LogOut
+  LogOut,
+  Eye
 } from 'lucide-react';
 import HoldCountdown from '../components/HoldCountdown';
 import AnalyticsOverview from '../components/AnalyticsOverview';
@@ -494,6 +495,15 @@ export default function AdminPage({
 
                               <td className="p-3.5 pr-4 text-right" onClick={(e) => e.stopPropagation()}>
                                 <div className="flex items-center justify-end gap-1.5">
+                                  <button
+                                    onClick={() => setSelectedBookingDetail(b)}
+                                    className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 transition-colors flex items-center gap-1 cursor-pointer"
+                                    title="View full booking dossier"
+                                  >
+                                    <Eye className="w-3.5 h-3.5" />
+                                    <span>Details</span>
+                                  </button>
+
                                   {b.status === 'HELD' && (
                                     <>
                                       <button
@@ -683,51 +693,124 @@ export default function AdminPage({
 
       {/* Reservation Detail Modal / Drawer */}
       {selectedBookingDetail && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl border border-slate-200 space-y-4 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-xl rounded-3xl p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-5 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+            {/* Header */}
             <div className="flex items-start justify-between pb-3 border-b border-slate-100">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">
-                  Reservation #{selectedBookingDetail.id}
-                </span>
-                <h3 className="text-lg font-extrabold text-slate-900 mt-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-purple-700 bg-purple-100 px-2.5 py-0.5 rounded-full border border-purple-200">
+                    Booking #{selectedBookingDetail.id}
+                  </span>
+                  <span className="text-xs font-semibold text-slate-500">
+                    {selectedBookingDetail.event_type || 'Corporate Event'}
+                  </span>
+                </div>
+                <h3 className="text-xl font-extrabold text-slate-950 mt-1">
                   {selectedBookingDetail.event_name}
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedBookingDetail(null)}
-                className="p-1 rounded-full text-slate-400 hover:bg-slate-100"
+                className="p-1.5 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="p-3 bg-slate-50 rounded-2xl space-y-1.5">
+            {/* Status & Hold Status Banner */}
+            <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Status</span>
+                <span className="font-extrabold text-xs text-slate-900 mt-0.5 block">{selectedBookingDetail.status}</span>
+              </div>
+              <HoldCountdown expiresAt={selectedBookingDetail.hold_expires_at} status={selectedBookingDetail.status} compact={false} />
+            </div>
+
+            {/* 2-Column Details Breakdown */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              {/* Event & Venue Info */}
+              <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-2">
+                <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-purple-700">
+                  Venue & Schedule
+                </h4>
+                <div className="space-y-1.5 text-slate-700">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Venue:</span>
+                    <span className="font-bold text-slate-900">{selectedBookingDetail.venue_name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Date:</span>
+                    <span className="font-mono font-bold text-slate-900">
+                      {new Date(selectedBookingDetail.start_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Time:</span>
+                    <span className="font-mono text-slate-700">
+                      {new Date(selectedBookingDetail.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – {new Date(selectedBookingDetail.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Duration:</span>
+                    <span className="font-bold text-slate-900">{selectedBookingDetail.duration_hours || 4} hours</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Guests:</span>
+                    <span className="font-bold text-slate-900">{selectedBookingDetail.guest_count} attendees</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Client Dossier */}
+              <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-2">
+                <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-blue-700">
+                  Client & Organization
+                </h4>
+                <div className="space-y-1.5 text-slate-700">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Booker:</span>
+                    <span className="font-bold text-slate-900">{selectedBookingDetail.user_name || 'Direct Client'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Email:</span>
+                    <span className="font-mono text-slate-700 text-[11px]">{selectedBookingDetail.user_email || '—'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Company:</span>
+                    <span className="font-bold text-slate-900">{selectedBookingDetail.user_company || 'Individual'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Notes:</span>
+                    <span className="text-slate-600 italic truncate max-w-[140px]">{selectedBookingDetail.notes || 'None'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Financial Ledger Breakdown */}
+            <div className="p-4 bg-purple-50/60 rounded-2xl border border-purple-100 space-y-2 text-xs">
+              <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-purple-900">
+                Invoice & Cost Breakdown
+              </h4>
+              <div className="space-y-1 text-slate-700">
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Venue Space:</span>
-                  <span className="font-bold text-slate-900">{selectedBookingDetail.venue_name}</span>
+                  <span className="text-slate-600">Base Space Rate:</span>
+                  <span className="font-mono font-bold">${Number(selectedBookingDetail.base_price || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Client / Booker:</span>
-                  <span className="font-bold text-slate-900">{selectedBookingDetail.user_name || 'Client'}</span>
+                  <span className="text-slate-600">Amenities & AV Equipment:</span>
+                  <span className="font-mono font-bold">${Number(selectedBookingDetail.amenities_price || 0).toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Total Price:</span>
-                  <span className="font-extrabold text-purple-600 font-mono text-sm">
-                    ${Number(selectedBookingDetail.total_price || 0).toLocaleString()}
-                  </span>
+                <div className="flex justify-between pt-1.5 border-t border-purple-200/80 text-sm font-extrabold text-purple-950">
+                  <span>Grand Total:</span>
+                  <span className="font-mono text-base text-purple-700">${Number(selectedBookingDetail.total_price || 0).toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Status:</span>
-                  <span className="font-bold text-slate-900">{selectedBookingDetail.status}</span>
-                </div>
-                <HoldCountdown expiresAt={selectedBookingDetail.hold_expires_at} status={selectedBookingDetail.status} compact={false} />
               </div>
             </div>
 
             {/* Action Buttons inside modal */}
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100 gap-2 flex-wrap">
               <button
                 onClick={() => handleDeleteBooking(selectedBookingDetail.id, selectedBookingDetail.event_name)}
                 disabled={actionLoading === selectedBookingDetail.id}
