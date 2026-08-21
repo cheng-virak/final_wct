@@ -90,6 +90,24 @@ export const api = {
   // Analytics
   getAnalytics: () => request('/analytics'),
 
+  // Notifications
+  getNotifications: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.user_id) query.append('user_id', params.user_id);
+    if (params.email) query.append('email', params.email);
+    const qs = query.toString() ? `?${query.toString()}` : '';
+    return request(`/notifications${qs}`);
+  },
+  markNotificationRead: (id) =>
+    request(`/notifications/${id}/read`, {
+      method: 'PATCH'
+    }),
+  markAllNotificationsRead: (userId) =>
+    request('/notifications/mark-all-read', {
+      method: 'PATCH',
+      body: JSON.stringify({ user_id: userId })
+    }),
+
   // Auth & Account Management
   login: (email, password) =>
     request('/auth/login', {

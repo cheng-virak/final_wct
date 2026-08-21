@@ -304,6 +304,26 @@
       "notes": "",
       "created_at": "2026-08-21T04:52:57.642Z",
       "updated_at": "2026-08-21T04:52:57.642Z"
+    },
+    {
+      "id": 2,
+      "user_id": 1787286190839,
+      "venue_id": 1,
+      "event_name": "event",
+      "event_type": "Corporate Conference",
+      "start_time": "2026-08-21T03:00:00.000Z",
+      "end_time": "2026-08-21T09:00:00.000Z",
+      "status": "HELD",
+      "is_tentative_hold": true,
+      "hold_expires_at": "2026-08-23T05:03:01.090Z",
+      "guest_count": 58,
+      "duration_hours": 6,
+      "base_price": 3900,
+      "amenities_price": 620,
+      "total_price": 4882,
+      "notes": "",
+      "created_at": "2026-08-21T05:03:01.090Z",
+      "updated_at": "2026-08-21T05:03:01.090Z"
     }
   ],
   "booking_amenities": [
@@ -432,6 +452,13 @@
       "amenity_id": 4,
       "quantity": 1,
       "unit_price": 480
+    },
+    {
+      "id": 19,
+      "booking_id": 2,
+      "amenity_id": 1,
+      "quantity": 1,
+      "unit_price": 620
     }
   ]
 }

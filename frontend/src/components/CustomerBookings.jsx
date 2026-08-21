@@ -168,9 +168,31 @@ export default function CustomerBookings({ bookings = [], onRefresh, onOpenNewBo
                   <div className="flex items-center justify-between sm:justify-end gap-3 pt-1 sm:pt-0">
                     <HoldCountdown expiresAt={b.hold_expires_at} status={b.status} compact={true} />
                     <span className="text-sm sm:text-base font-extrabold font-mono text-slate-900">
-                      ${b.total_price.toLocaleString()}
+                      ${Number(b.total_price || 0).toLocaleString()}
                     </span>
                   </div>
+                </div>
+
+                {/* Admin Status Note */}
+                <div className="mt-2.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5">
+                    {b.status === 'CONFIRMED' && (
+                      <span className="text-emerald-700 font-extrabold flex items-center gap-1">
+                        ✓ Approved by Venue Management · Official Reservation
+                      </span>
+                    )}
+                    {b.status === 'HELD' && (
+                      <span className="text-amber-800 font-bold flex items-center gap-1">
+                        ⏳ 48-Hour Provisional Hold · Rate Locked & Pending Payment/Review
+                      </span>
+                    )}
+                    {b.status === 'CANCELLED' && (
+                      <span className="text-slate-500 font-medium flex items-center gap-1">
+                        ✕ Released & Slot Cancelled by Management
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-mono">ID: #{b.id}</span>
                 </div>
 
                 {/* Actions for active hold */}

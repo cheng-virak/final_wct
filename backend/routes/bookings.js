@@ -268,6 +268,30 @@ router.patch('/:id/status', async (req, res) => {
     dbMethods.updateBookingStatus(bookingId, status);
 
     if (updated) {
+      // Auto-dispatch persistent user notification
+      try {
+        const { Notification } = await import('../models/Notification.js');
+        const notifType = status === 'CONFIRMED' ? 'BOOKING_APPROVED' : 'BOOKING_REJECTED';
+        const notifTitle = status === 'CONFIRMED' ? 'Reservation Approved & Confirmed! 🎉' : 'Reservation Released / Rejected';
+        const notifMsg = status === 'CONFIRMED'
+          ? `Great news! Your reservation for "${updated.event_name}" at ${updated.venue_name || 'Grand Horizon'} has been officially APPROVED by the Venue Director.`
+          : `Your hold/reservation for "${updated.event_name}" at ${updated.venue_name || 'Grand Horizon'} was released by Management.`;
+
+        await Notification.create({
+          id: Date.now(),
+          user_id: updated.user_id,
+          user_email: updated.user_email || '',
+          booking_id: updated.id,
+          event_name: updated.event_name,
+          venue_name: updated.venue_name,
+          type: notifType,
+          title: notifTitle,
+          message: notifMsg
+        });
+      } catch (nErr) {
+        console.warn('Could not save notification:', nErr.message);
+      }
+
       return res.json({ message: `Status updated to ${status} in MongoDB`, data: updated });
     }
   } catch (err) {
@@ -292,6 +316,23 @@ router.post('/:id/extend-hold', async (req, res) => {
       booking.hold_expires_at = currentExp;
       await booking.save();
       dbMethods.extendHold(bookingId, additional_hours);
+
+      // Dispatch hold extended notification
+      try {
+        const { Notification } = await import('../models/Notification.js');
+        await Notification.create({
+          id: Date.now(),
+          user_id: booking.user_id,
+          user_email: booking.user_email || '',
+          booking_id: booking.id,
+          event_name: booking.event_name,
+          venue_name: booking.venue_name,
+          type: 'HOLD_EXTENDED',
+          title: '48h Hold Extended (+24h)',
+          message: `Your tentative hold for "${booking.event_name}" has been extended by ${additional_hours} additional hours by Venue Management.`
+        });
+      } catch (nErr) {}
+
       return res.json({ message: `Hold extended by ${additional_hours} hours in MongoDB`, data: booking });
     }
   } catch (err) {

@@ -16,6 +16,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import SignOutModal from './SignOutModal';
+import NotificationBell from './NotificationBell';
 
 export default function Navbar({ 
   activeTab, 
@@ -126,6 +127,9 @@ export default function Navbar({
                 </span>
               )}
             </a>
+
+            {/* In-App Notifications Bell for Admin Decisions */}
+            <NotificationBell />
 
             {/* User Account / Sign In Dropdown */}
             <div className="relative">
