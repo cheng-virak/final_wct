@@ -112,57 +112,6 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
           </button>
         </div>
 
-        {/* 1-Click Demo Accounts (Fast Testing) */}
-        <div className="space-y-2">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-amber-500" />
-            <span>Instant 1-Click Login (Demo Accounts):</span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => handleSelectDemoUser({
-                id: 1,
-                name: 'Elena Rostova (Venue Director)',
-                email: 'admin@venueworks.com',
-                role: 'ADMIN',
-                company: 'Grand Horizon Venues & Suites'
-              })}
-              className="p-2.5 rounded-xl border border-purple-200 bg-purple-50/60 hover:bg-purple-100 text-left transition-all cursor-pointer group"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-purple-900">Admin Portal</span>
-                <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
-              </div>
-              <p className="text-[10px] text-purple-700 truncate">Elena Rostova</p>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleSelectDemoUser({
-                id: 2,
-                name: 'Alexander Morgan',
-                email: 'alex.morgan@acmecorp.com',
-                role: 'CUSTOMER',
-                company: 'Acme Global Innovations'
-              })}
-              className="p-2.5 rounded-xl border border-blue-200 bg-blue-50/60 hover:bg-blue-100 text-left transition-all cursor-pointer group"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-blue-900">Client / Customer</span>
-                <User className="w-3.5 h-3.5 text-blue-600" />
-              </div>
-              <p className="text-[10px] text-blue-700 truncate">Alexander Morgan</p>
-            </button>
-          </div>
-        </div>
-
-        <div className="relative flex items-center justify-center">
-          <div className="border-t border-slate-200 w-full" />
-          <span className="bg-white px-2 text-[10px] text-slate-400 font-bold uppercase">or email login</span>
-        </div>
-
         {/* Error Alert */}
         {error && (
           <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
