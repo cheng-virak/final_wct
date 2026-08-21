@@ -1,47 +1,102 @@
 import express from 'express';
-import { dbMethods } from '../db/database.js';
-import { authenticate, optionalAuth } from '../middleware/auth.js';
+import { Booking } from '../models/Booking.js';
+import { Venue } from '../models/Venue.js';
+import { Amenity } from '../models/Amenity.js';
+import { User } from '../models/User.js';
+import { dbMethods, autoExpireHolds } from '../db/database.js';
+import { optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// 1. List Bookings and Holds
-router.get('/', (req, res) => {
+// 1. List Bookings and Holds directly from MongoDB
+router.get('/', async (req, res) => {
   const { venue_id, user_id, status, active_only } = req.query;
-  const bookings = dbMethods.getBookings({ venue_id, user_id, status, active_only: active_only === 'true' });
-  res.json({ count: bookings.length, data: bookings });
+  
+  try {
+    const query = {};
+    if (venue_id) query.venue_id = Number(venue_id);
+    if (user_id) query.user_id = Number(user_id);
+    if (status) query.status = status;
+    if (active_only === 'true') query.status = { $in: ['HELD', 'CONFIRMED'] };
+
+    // Auto expire old holds
+    const now = new Date();
+    await Booking.updateMany(
+      { status: 'HELD', hold_expires_at: { $lte: now } },
+      { status: 'EXPIRED' }
+    );
+
+    const bookings = await Booking.find(query).sort({ start_time: -1 }).lean();
+    if (bookings) {
+      return res.json({ count: bookings.length, data: bookings });
+    }
+  } catch (err) {
+    console.warn('Fallback to local bookings cache:', err.message);
+  }
+
+  const fallback = dbMethods.getBookings({ venue_id, user_id, status, active_only: active_only === 'true' });
+  res.json({ count: fallback.length, data: fallback });
 });
 
-// 2. Check Availability / Conflict Query
-router.post('/check-availability', (req, res) => {
+// 2. Check Availability / Conflict Query from MongoDB
+router.post('/check-availability', async (req, res) => {
   const { venue_id, start_time, end_time, exclude_id } = req.body;
   if (!venue_id || !start_time || !end_time) {
     return res.status(400).json({ error: 'venue_id, start_time, and end_time are required.' });
   }
 
-  const conflicts = dbMethods.checkOverlaps(venue_id, start_time, end_time, exclude_id);
-  const isAvailable = conflicts.length === 0;
+  const reqStart = new Date(start_time);
+  const reqEnd = new Date(end_time);
 
-  res.json({
-    isAvailable,
-    conflictCount: conflicts.length,
-    conflicts: conflicts.map(c => ({
-      id: c.id,
-      event_name: c.event_name,
-      start_time: c.start_time,
-      end_time: c.end_time,
-      status: c.status
-    }))
-  });
+  try {
+    const query = {
+      venue_id: Number(venue_id),
+      status: { $in: ['HELD', 'CONFIRMED'] },
+      $or: [
+        { start_time: { $lt: reqEnd }, end_time: { $gt: reqStart } }
+      ]
+    };
+    if (exclude_id) {
+      query.id = { $ne: Number(exclude_id) };
+    }
+
+    const conflicts = await Booking.find(query).lean();
+    const isAvailable = conflicts.length === 0;
+
+    return res.json({
+      isAvailable,
+      conflictCount: conflicts.length,
+      conflicts: conflicts.map(c => ({
+        id: c.id,
+        event_name: c.event_name,
+        start_time: c.start_time,
+        end_time: c.end_time,
+        status: c.status
+      }))
+    });
+  } catch (err) {
+    const fallbackConflicts = dbMethods.checkOverlaps(venue_id, start_time, end_time, exclude_id);
+    return res.json({
+      isAvailable: fallbackConflicts.length === 0,
+      conflictCount: fallbackConflicts.length,
+      conflicts: fallbackConflicts
+    });
+  }
 });
 
 // 3. Dynamic Quote Calculator Engine
-router.post('/quote', (req, res) => {
+router.post('/quote', async (req, res) => {
   const { venue_id, start_time, end_time, amenity_ids = [], guest_count = 50 } = req.body;
   if (!venue_id || !start_time || !end_time) {
     return res.status(400).json({ error: 'venue_id, start_time, and end_time are required.' });
   }
 
-  const venue = dbMethods.getVenueById(venue_id);
+  let venue = null;
+  try {
+    venue = await Venue.findOne({ id: Number(venue_id) }).lean();
+  } catch (err) {}
+  if (!venue) venue = dbMethods.getVenueById(venue_id);
+
   if (!venue) {
     return res.status(404).json({ error: 'Venue not found' });
   }
@@ -50,20 +105,22 @@ router.post('/quote', (req, res) => {
   const end = new Date(end_time);
   const durationHours = Math.max(1, (end.getTime() - start.getTime()) / 3600000);
 
-  // Check if booking falls on weekend (Friday evening, Saturday, or Sunday)
-  const day = start.getDay(); // 0 is Sunday, 6 is Saturday, 5 is Friday
+  const day = start.getDay();
   const isWeekend = day === 0 || day === 6 || (day === 5 && start.getHours() >= 17);
   const multiplier = isWeekend ? (venue.weekend_multiplier || 1.25) : 1.0;
-
   const basePrice = Math.round(durationHours * venue.hourly_rate * multiplier);
 
-  // Calculate chosen amenities
-  const allAmenities = dbMethods.getAmenities();
+  let allAmenities = [];
+  try {
+    allAmenities = await Amenity.find().lean();
+  } catch (err) {}
+  if (!allAmenities || allAmenities.length === 0) allAmenities = dbMethods.getAmenities();
+
   const selectedAmenities = allAmenities.filter(a => amenity_ids.map(Number).includes(a.id));
 
   let amenitiesPrice = 0;
   const amenitiesBreakdown = selectedAmenities.map(am => {
-    const cost = Math.round(am.flat_fee + (am.hourly_fee * durationHours));
+    const cost = Math.round((am.flat_fee || 0) + ((am.hourly_fee || 0) * durationHours));
     amenitiesPrice += cost;
     return {
       id: am.id,
@@ -76,7 +133,7 @@ router.post('/quote', (req, res) => {
   });
 
   const subtotal = basePrice + amenitiesPrice;
-  const serviceTax = Math.round(subtotal * 0.08); // 8% venue service & facilities fee
+  const serviceTax = Math.round(subtotal * 0.08);
   const totalPrice = subtotal + serviceTax;
 
   res.json({
@@ -95,8 +152,8 @@ router.post('/quote', (req, res) => {
   });
 });
 
-// 4. Create Booking or Tentative Hold
-router.post('/', optionalAuth, (req, res) => {
+// 4. Create Booking or Tentative Hold in MongoDB
+router.post('/', optionalAuth, async (req, res) => {
   const {
     venue_id,
     user_id,
@@ -115,92 +172,135 @@ router.post('/', optionalAuth, (req, res) => {
     return res.status(400).json({ error: 'Missing required booking details (venue_id, start_time, end_time, event_name).' });
   }
 
-  // Determine user ID
-  const effectiveUserId = (req.user && req.user.id) || Number(user_id) || 2; // fallback to demo client
+  const effectiveUserId = (req.user && req.user.id) || Number(user_id) || 1;
 
-  // Check for collision
-  const conflicts = dbMethods.checkOverlaps(venue_id, start_time, end_time);
-  if (conflicts.length > 0) {
-    return res.status(409).json({
-      error: 'Time slot conflict. This venue space is already reserved or held during this timeframe.',
-      conflicts
-    });
-  }
+  let venue = null;
+  let user = null;
+  try {
+    venue = await Venue.findOne({ id: Number(venue_id) }).lean();
+    user = await User.findOne({ id: effectiveUserId }).lean();
+  } catch (err) {}
+  if (!venue) venue = dbMethods.getVenueById(venue_id);
+  if (!user) user = dbMethods.findUserById(effectiveUserId);
 
-  // Calculate pricing
-  const venue = dbMethods.getVenueById(venue_id);
   const start = new Date(start_time);
   const end = new Date(end_time);
   const durationHours = Math.max(1, (end.getTime() - start.getTime()) / 3600000);
 
   const day = start.getDay();
   const isWeekend = day === 0 || day === 6 || (day === 5 && start.getHours() >= 17);
-  const multiplier = isWeekend ? (venue.weekend_multiplier || 1.25) : 1.0;
-  const basePrice = Math.round(durationHours * venue.hourly_rate * multiplier);
+  const multiplier = isWeekend ? (venue?.weekend_multiplier || 1.25) : 1.0;
+  const basePrice = Math.round(durationHours * (venue?.hourly_rate || 400) * multiplier);
 
-  const allAmenities = dbMethods.getAmenities();
+  let allAmenities = [];
+  try {
+    allAmenities = await Amenity.find().lean();
+  } catch (err) {}
+  if (!allAmenities || allAmenities.length === 0) allAmenities = dbMethods.getAmenities();
+
   const selectedAmenities = allAmenities.filter(a => amenity_ids.map(Number).includes(a.id));
-  const amenitiesPrice = selectedAmenities.reduce((sum, a) => sum + Math.round(a.flat_fee + (a.hourly_fee * durationHours)), 0);
+  const amenitiesPrice = selectedAmenities.reduce((sum, a) => sum + Math.round((a.flat_fee || 0) + ((a.hourly_fee || 0) * durationHours)), 0);
   const totalPrice = basePrice + amenitiesPrice + Math.round((basePrice + amenitiesPrice) * 0.08);
 
-  const newBooking = dbMethods.createBooking({
+  const isHold = Boolean(is_tentative_hold);
+  const holdExpiresAt = isHold ? new Date(Date.now() + (Number(hold_hours) || 48) * 3600000) : null;
+  const status = isHold ? 'HELD' : 'CONFIRMED';
+  const newId = Date.now();
+
+  const bookingDoc = {
+    id: newId,
     user_id: effectiveUserId,
-    venue_id,
+    venue_id: Number(venue_id),
+    venue_name: venue?.name || 'Venue Hall',
+    user_name: user?.name || 'Client',
+    user_email: user?.email || '',
+    user_company: user?.company || '',
     event_name,
-    event_type: event_type || 'Corporate / Private Event',
-    start_time,
-    end_time,
-    is_tentative_hold: Boolean(is_tentative_hold),
-    hold_hours: Number(hold_hours) || 48,
-    guest_count: Number(guest_count) || 50,
+    event_type: event_type || 'Private Event',
+    start_time: start,
+    end_time: end,
     duration_hours: Number(durationHours.toFixed(1)),
+    guest_count: Number(guest_count) || 50,
+    is_tentative_hold: isHold,
+    hold_expires_at: holdExpiresAt,
+    status,
     base_price: basePrice,
     amenities_price: amenitiesPrice,
     total_price: totalPrice,
     amenity_ids,
     notes: notes || ''
-  });
+  };
 
-  res.status(201).json({
-    message: is_tentative_hold
-      ? 'Tentative 48-hour hold placed successfully without upfront charge.'
-      : 'Booking confirmed successfully.',
-    data: newBooking
-  });
+  try {
+    const created = await Booking.create(bookingDoc);
+    dbMethods.createBooking(bookingDoc); // sync local mirror
+    return res.status(201).json({
+      message: isHold ? 'Tentative 48-hour hold placed in MongoDB.' : 'Booking confirmed in MongoDB.',
+      data: created
+    });
+  } catch (err) {
+    const local = dbMethods.createBooking(bookingDoc);
+    return res.status(201).json({
+      message: 'Booking saved.',
+      data: local
+    });
+  }
 });
 
-// 5. Update Booking Status (Confirm, Release, Cancel, Expire)
-router.patch('/:id/status', (req, res) => {
+// 5. Update Booking Status (Confirm, Release, Cancel, Expire) in MongoDB
+router.patch('/:id/status', async (req, res) => {
   const { status } = req.body;
-  const validStatuses = ['AVAILABLE', 'HELD', 'CONFIRMED', 'EXPIRED', 'CANCELLED'];
+  const bookingId = Number(req.params.id);
 
-  if (!status || !validStatuses.includes(status)) {
-    return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+  const updateFields = { status };
+  if (status === 'CONFIRMED') {
+    updateFields.is_tentative_hold = false;
+    updateFields.hold_expires_at = null;
   }
 
-  const updated = dbMethods.updateBookingStatus(req.params.id, status);
-  if (!updated) {
-    return res.status(404).json({ error: 'Booking record not found' });
+  try {
+    const updated = await Booking.findOneAndUpdate(
+      { id: bookingId },
+      { $set: updateFields },
+      { new: true }
+    ).lean();
+
+    dbMethods.updateBookingStatus(bookingId, status);
+
+    if (updated) {
+      return res.json({ message: `Status updated to ${status} in MongoDB`, data: updated });
+    }
+  } catch (err) {
+    console.warn('MongoDB status update fallback:', err.message);
   }
 
-  res.json({
-    message: `Booking status updated to ${status}`,
-    data: updated
-  });
+  const localUpdated = dbMethods.updateBookingStatus(bookingId, status);
+  if (!localUpdated) return res.status(404).json({ error: 'Booking record not found' });
+  res.json({ message: `Status updated to ${status}`, data: localUpdated });
 });
 
-// 6. Extend Tentative Hold (+24 hours)
-router.post('/:id/extend-hold', (req, res) => {
+// 6. Extend Tentative Hold (+24 hours) in MongoDB
+router.post('/:id/extend-hold', async (req, res) => {
+  const bookingId = Number(req.params.id);
   const { additional_hours = 24 } = req.body;
-  const updated = dbMethods.extendHold(req.params.id, Number(additional_hours));
-  if (!updated) {
-    return res.status(400).json({ error: 'Unable to extend hold. Ensure booking exists and is currently in HELD status.' });
+
+  try {
+    const booking = await Booking.findOne({ id: bookingId });
+    if (booking && booking.status === 'HELD') {
+      const currentExp = booking.hold_expires_at ? new Date(booking.hold_expires_at) : new Date();
+      currentExp.setHours(currentExp.getHours() + Number(additional_hours));
+      booking.hold_expires_at = currentExp;
+      await booking.save();
+      dbMethods.extendHold(bookingId, additional_hours);
+      return res.json({ message: `Hold extended by ${additional_hours} hours in MongoDB`, data: booking });
+    }
+  } catch (err) {
+    console.warn('MongoDB hold extension fallback:', err.message);
   }
 
-  res.json({
-    message: `Tentative hold extended by ${additional_hours} hours.`,
-    data: updated
-  });
+  const localUpdated = dbMethods.extendHold(bookingId, Number(additional_hours));
+  if (!localUpdated) return res.status(400).json({ error: 'Unable to extend hold.' });
+  res.json({ message: `Hold extended by ${additional_hours} hours`, data: localUpdated });
 });
 
 export default router;
