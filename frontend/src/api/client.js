@@ -1,7 +1,12 @@
 const API_BASE = '/api';
 
 async function request(endpoint, options = {}) {
-  const token = localStorage.getItem('venue_auth_token');
+  // Determine token based on whether running in Admin portal or Client portal
+  const isAdminPortal = typeof window !== 'undefined' && window.location.pathname.includes('admin');
+  const token = isAdminPortal
+    ? (localStorage.getItem('venue_admin_token') || localStorage.getItem('venue_auth_token'))
+    : (localStorage.getItem('venue_client_token') || localStorage.getItem('venue_auth_token'));
+
   const headers = {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),

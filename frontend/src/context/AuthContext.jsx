@@ -4,10 +4,15 @@ import { api } from '../api/client';
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  // Read saved session immediately on startup so refresh never loses login
+  // Determine if this instance is running in Admin portal or Client portal
+  const isAdminPortal = typeof window !== 'undefined' && window.location.pathname.includes('admin');
+  const userKey = isAdminPortal ? 'venue_admin_user' : 'venue_client_user';
+  const tokenKey = isAdminPortal ? 'venue_admin_token' : 'venue_client_token';
+
+  // Read session for this specific portal immediately on startup
   const [user, setUser] = useState(() => {
     try {
-      const savedUser = localStorage.getItem('venue_current_user');
+      const savedUser = localStorage.getItem(userKey);
       return savedUser ? JSON.parse(savedUser) : null;
     } catch {
       return null;
@@ -18,14 +23,14 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // If token exists, verify and refresh user profile from backend
-    const token = localStorage.getItem('venue_auth_token');
+    // If token exists for this portal, verify user profile from backend
+    const token = localStorage.getItem(tokenKey);
     if (token) {
       api.getProfile()
         .then(res => {
           if (res?.user) {
             setUser(res.user);
-            localStorage.setItem('venue_current_user', JSON.stringify(res.user));
+            localStorage.setItem(userKey, JSON.stringify(res.user));
           }
         })
         .catch(err => {
@@ -33,9 +38,9 @@ export function AuthProvider({ children }) {
         });
     }
 
-    // Listen to storage events to sync auth state across tabs and separate pages (index.html & admin.html)
+    // Sync only changes for this portal's user key
     const handleStorageChange = (e) => {
-      if (e.key === 'venue_current_user') {
+      if (e.key === userKey) {
         try {
           setUser(e.newValue ? JSON.parse(e.newValue) : null);
         } catch {
@@ -46,14 +51,14 @@ export function AuthProvider({ children }) {
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  }, [userKey, tokenKey]);
 
   const switchUser = (selectedUser) => {
     setUser(selectedUser);
     if (selectedUser) {
-      localStorage.setItem('venue_current_user', JSON.stringify(selectedUser));
+      localStorage.setItem(userKey, JSON.stringify(selectedUser));
     } else {
-      localStorage.removeItem('venue_current_user');
+      localStorage.removeItem(userKey);
     }
   };
 
@@ -62,10 +67,10 @@ export function AuthProvider({ children }) {
     try {
       const res = await api.login(email, password);
       if (res.token) {
-        localStorage.setItem('venue_auth_token', res.token);
+        localStorage.setItem(tokenKey, res.token);
       }
       if (res.user) {
-        localStorage.setItem('venue_current_user', JSON.stringify(res.user));
+        localStorage.setItem(userKey, JSON.stringify(res.user));
         setUser(res.user);
       }
       return res.user;
@@ -75,8 +80,8 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('venue_auth_token');
-    localStorage.removeItem('venue_current_user');
+    localStorage.removeItem(tokenKey);
+    localStorage.removeItem(userKey);
     setUser(null);
   };
 
