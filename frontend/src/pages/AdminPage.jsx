@@ -200,7 +200,7 @@ export default function AdminPage({
                 }`}
               >
                 <ListOrdered className="w-4 h-4" />
-                <span>All Reservations</span>
+                <span>{t('allReservations')}</span>
                 <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-bold ${
                   adminTab === 'ledger' ? 'bg-purple-800 text-white' : 'bg-slate-100 text-slate-700'
                 }`}>
@@ -217,7 +217,7 @@ export default function AdminPage({
                 }`}
               >
                 <Clock className="w-4 h-4" />
-                <span>Holds Queue</span>
+                <span>{t('holdsQueue')}</span>
                 {holds.length > 0 && (
                   <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-bold ${
                     adminTab === 'holds' ? 'bg-amber-700 text-white' : 'bg-amber-100 text-amber-900'
@@ -236,7 +236,7 @@ export default function AdminPage({
                 }`}
               >
                 <BarChart3 className="w-4 h-4" />
-                <span>Revenue & Analytics</span>
+                <span>{t('revenueAnalytics')}</span>
               </button>
 
               <button
@@ -248,7 +248,7 @@ export default function AdminPage({
                 }`}
               >
                 <CalendarDays className="w-4 h-4" />
-                <span>Master Calendar</span>
+                <span>{t('masterCalendar')}</span>
               </button>
 
               <button
@@ -260,7 +260,7 @@ export default function AdminPage({
                 }`}
               >
                 <Users className="w-4 h-4" />
-                <span>Account Manager</span>
+                <span>{t('accountManager')}</span>
               </button>
 
               <button
@@ -272,7 +272,7 @@ export default function AdminPage({
                 }`}
               >
                 <Package className="w-4 h-4" />
-                <span>Add-on Items</span>
+                <span>{t('addonItems')}</span>
               </button>
             </nav>
 
@@ -280,7 +280,7 @@ export default function AdminPage({
             <div className="flex items-center justify-end gap-2.5 shrink-0 text-xs">
               <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>MongoDB Connected</span>
+                <span>{t('connected')}</span>
               </div>
 
               <button
@@ -289,7 +289,7 @@ export default function AdminPage({
                 title="Sync and Refresh Live Data"
               >
                 <RefreshCw className="w-3.5 h-3.5 text-purple-600" />
-                <span>Sync Data</span>
+                <span>{t('syncData')}</span>
               </button>
             </div>
           </div>
@@ -306,7 +306,7 @@ export default function AdminPage({
             className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs space-y-1 cursor-pointer hover:border-amber-400 transition-all group"
           >
             <div className="flex items-center justify-between text-xs text-amber-700 font-bold uppercase tracking-wider">
-              <span>Active Holds</span>
+              <span>{t('activeHolds')}</span>
               <div className="p-1 rounded-lg bg-amber-50 text-amber-600 group-hover:scale-110 transition-transform">
                 <Clock className="w-4 h-4" />
               </div>
@@ -315,7 +315,7 @@ export default function AdminPage({
               {holds.length}
             </div>
             <p className="text-[11px] text-slate-500">
-              {holds.length > 0 ? '⚠️ Action needed on holds' : 'All clear'}
+              {holds.length > 0 ? (lang === 'km' ? 'ត្រូវការពិនិត្យ' : 'Active review needed') : (lang === 'km' ? 'មិនមានការកក់រង់ចាំ' : 'All clear')}
             </p>
           </div>
 
@@ -325,7 +325,7 @@ export default function AdminPage({
             className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs space-y-1 cursor-pointer hover:border-emerald-400 transition-all group"
           >
             <div className="flex items-center justify-between text-xs text-emerald-700 font-bold uppercase tracking-wider">
-              <span>Confirmed Revenue</span>
+              <span>{t('confirmedRevenue')}</span>
               <div className="p-1 rounded-lg bg-emerald-50 text-emerald-600 group-hover:scale-110 transition-transform">
                 <CheckCircle2 className="w-4 h-4" />
               </div>
@@ -333,7 +333,7 @@ export default function AdminPage({
             <div className="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-600">
               ${totalRevenue.toLocaleString()}
             </div>
-            <p className="text-[11px] text-slate-500">{confirmed.length} locked bookings</p>
+            <p className="text-[11px] text-slate-500">{confirmed.length} {lang === 'km' ? 'បានបញ្ជាក់' : 'locked bookings'}</p>
           </div>
 
           {/* Pipeline Revenue */}
@@ -342,7 +342,7 @@ export default function AdminPage({
             className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs space-y-1 cursor-pointer hover:border-blue-400 transition-all group"
           >
             <div className="flex items-center justify-between text-xs text-blue-700 font-bold uppercase tracking-wider">
-              <span>Hold Pipeline</span>
+              <span>{t('holdPipeline')}</span>
               <div className="p-1 rounded-lg bg-blue-50 text-blue-600 group-hover:scale-110 transition-transform">
                 <Sparkles className="w-4 h-4" />
               </div>
@@ -350,13 +350,13 @@ export default function AdminPage({
             <div className="text-2xl sm:text-3xl font-extrabold font-mono text-blue-600">
               ${pipelineRevenue.toLocaleString()}
             </div>
-            <p className="text-[11px] text-slate-500">Pending conversion</p>
+            <p className="text-[11px] text-slate-500">{lang === 'km' ? 'តម្លៃកក់រង់ចាំ' : 'Pending holds'}</p>
           </div>
 
           {/* Total Managed Spaces */}
           <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs space-y-1">
             <div className="flex items-center justify-between text-xs text-purple-700 font-bold uppercase tracking-wider">
-              <span>Venue Spaces</span>
+              <span>{t('venueSpaces')}</span>
               <div className="p-1 rounded-lg bg-purple-50 text-purple-600">
                 <Building2 className="w-4 h-4" />
               </div>
@@ -364,7 +364,7 @@ export default function AdminPage({
             <div className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-900">
               {venues.length}
             </div>
-            <p className="text-[11px] text-slate-500">Halls & Terraces</p>
+            <p className="text-[11px] text-slate-500">{lang === 'km' ? 'សាល និងបន្ទប់' : 'Halls & Rooms'}</p>
           </div>
         </div>
 
