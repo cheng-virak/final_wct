@@ -24,7 +24,8 @@ import {
   Calendar,
   Sparkles,
   Trash2,
-  Users
+  Users,
+  LogOut
 } from 'lucide-react';
 import HoldCountdown from '../components/HoldCountdown';
 import AnalyticsOverview from '../components/AnalyticsOverview';
