@@ -30,8 +30,22 @@ export const api = {
   getVenues: () => request('/venues'),
   getVenueById: (id) => request(`/venues/${id}`),
 
-  // Amenities
+  // Amenities & Booking Items
   getAmenities: () => request('/amenities'),
+  createAmenity: (data) =>
+    request('/amenities', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+  updateAmenity: (id, data) =>
+    request(`/amenities/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data)
+    }),
+  deleteAmenity: (id) =>
+    request(`/amenities/${id}`, {
+      method: 'DELETE'
+    }),
 
   // Bookings & Holds
   getBookings: (params = {}) => {

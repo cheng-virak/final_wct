@@ -26,13 +26,15 @@ import {
   Trash2,
   Users,
   LogOut,
-  Eye
+  Eye,
+  Package
 } from 'lucide-react';
 import HoldCountdown from '../components/HoldCountdown';
 import AnalyticsOverview from '../components/AnalyticsOverview';
 import AdminHoldManager from '../components/AdminHoldManager';
 import InteractiveCalendar from '../components/InteractiveCalendar';
 import AdminAccountManager from '../components/AdminAccountManager';
+import AdminAmenityManager from '../components/AdminAmenityManager';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -259,6 +261,18 @@ export default function AdminPage({
               >
                 <Users className="w-4 h-4" />
                 <span>Account Manager</span>
+              </button>
+
+              <button
+                onClick={() => setAdminTab('items')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                  adminTab === 'items'
+                    ? 'bg-purple-600 text-white shadow-xs'
+                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                }`}
+              >
+                <Package className="w-4 h-4" />
+                <span>Add-on Items</span>
               </button>
             </nav>
 
@@ -688,6 +702,11 @@ export default function AdminPage({
         {/* ---------------- SUB-TAB 5: ACCOUNTS & USERS ---------------- */}
         {adminTab === 'accounts' && (
           <AdminAccountManager />
+        )}
+
+        {/* ---------------- SUB-TAB 6: BOOKING ITEMS & AMENITIES ---------------- */}
+        {adminTab === 'items' && (
+          <AdminAmenityManager onAmenitiesUpdated={onRefresh} />
         )}
       </main>
 
