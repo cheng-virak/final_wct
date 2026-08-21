@@ -90,12 +90,12 @@ export default function AdminApp() {
     setIsBookingModalOpen(true);
   };
 
-  const handleBookingCreated = (newBooking) => {
+  const handleBookingCreated = (newBooking = {}) => {
     fetchData();
     showToast(
-      newBooking.is_tentative_hold
-        ? `Tentative hold registered for "${newBooking.event_name}"!`
-        : `Confirmed booking override saved for "${newBooking.event_name}"!`
+      newBooking?.is_tentative_hold
+        ? `Tentative hold registered for "${newBooking?.event_name || 'Room'}"!`
+        : `Confirmed booking override saved for "${newBooking?.event_name || 'Room'}"!`
     );
   };
 

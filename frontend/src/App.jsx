@@ -98,12 +98,12 @@ export default function App() {
     setIsBookingModalOpen(true);
   };
 
-  const handleBookingCreated = (newBooking) => {
+  const handleBookingCreated = (newBooking = {}) => {
     fetchData();
     showToast(
-      newBooking.is_tentative_hold
-        ? `Tentative hold placed successfully for "${newBooking.event_name}"!`
-        : `Confirmed booking created for "${newBooking.event_name}"!`
+      newBooking?.is_tentative_hold
+        ? `Tentative hold placed successfully for "${newBooking?.event_name || 'Room'}"!`
+        : `Confirmed booking created for "${newBooking?.event_name || 'Room'}"!`
     );
   };
 

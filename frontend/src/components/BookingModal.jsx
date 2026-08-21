@@ -136,8 +136,8 @@ export default function BookingModal({
         notes: formData.notes
       };
 
-      await api.createBooking(payload);
-      if (onBookingCreated) onBookingCreated();
+      const res = await api.createBooking(payload);
+      if (onBookingCreated) onBookingCreated(res?.data || payload);
       onClose();
     } catch (err) {
       setErrorMsg(err.message || 'Failed to create room reservation');

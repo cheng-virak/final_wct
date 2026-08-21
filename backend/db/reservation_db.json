@@ -304,6 +304,66 @@
       "notes": "",
       "created_at": "2026-08-21T05:03:01.090Z",
       "updated_at": "2026-08-21T05:07:59.145Z"
+    },
+    {
+      "id": 3,
+      "user_id": 1787286190839,
+      "venue_id": 2,
+      "event_name": "Luxury Holiday Stay",
+      "event_type": "Vacation & Leisure",
+      "start_time": "2026-08-28T07:00:00.000Z",
+      "end_time": "2026-09-01T05:00:00.000Z",
+      "status": "HELD",
+      "is_tentative_hold": true,
+      "hold_expires_at": "2026-08-23T05:19:54.720Z",
+      "guest_count": 2,
+      "duration_hours": 94,
+      "base_price": 70500,
+      "amenities_price": 35,
+      "total_price": 76178,
+      "notes": "5tyh5y",
+      "created_at": "2026-08-21T05:19:54.720Z",
+      "updated_at": "2026-08-21T05:19:54.720Z"
+    },
+    {
+      "id": 4,
+      "user_id": 1787286190839,
+      "venue_id": 2,
+      "event_name": "Luxury Holiday Stay",
+      "event_type": "Vacation & Leisure",
+      "start_time": "2026-08-21T07:00:00.000Z",
+      "end_time": "2026-08-23T05:00:00.000Z",
+      "status": "CONFIRMED",
+      "is_tentative_hold": false,
+      "hold_expires_at": null,
+      "guest_count": 2,
+      "duration_hours": 46,
+      "base_price": 34500,
+      "amenities_price": 35,
+      "total_price": 37298,
+      "notes": "5tyh5y",
+      "created_at": "2026-08-21T05:20:14.605Z",
+      "updated_at": "2026-08-21T05:20:14.605Z"
+    },
+    {
+      "id": 5,
+      "user_id": 1787286190839,
+      "venue_id": 1,
+      "event_name": "Luxury Holiday Stay",
+      "event_type": "Vacation & Leisure",
+      "start_time": "2026-08-21T07:00:00.000Z",
+      "end_time": "2026-08-23T05:00:00.000Z",
+      "status": "HELD",
+      "is_tentative_hold": true,
+      "hold_expires_at": "2026-08-23T05:20:40.766Z",
+      "guest_count": 3,
+      "duration_hours": 46,
+      "base_price": 12880,
+      "amenities_price": 460,
+      "total_price": 14407,
+      "notes": "",
+      "created_at": "2026-08-21T05:20:40.766Z",
+      "updated_at": "2026-08-21T05:20:40.766Z"
     }
   ],
   "booking_amenities": [
@@ -439,6 +499,55 @@
       "amenity_id": 1,
       "quantity": 1,
       "unit_price": 620
+    },
+    {
+      "id": 20,
+      "booking_id": 3,
+      "amenity_id": 1,
+      "quantity": 1,
+      "unit_price": 4580
+    },
+    {
+      "id": 21,
+      "booking_id": 4,
+      "amenity_id": 1,
+      "quantity": 1,
+      "unit_price": 2420
+    },
+    {
+      "id": 22,
+      "booking_id": 5,
+      "amenity_id": 1,
+      "quantity": 1,
+      "unit_price": 2420
+    },
+    {
+      "id": 23,
+      "booking_id": 5,
+      "amenity_id": 4,
+      "quantity": 1,
+      "unit_price": 2680
+    },
+    {
+      "id": 24,
+      "booking_id": 5,
+      "amenity_id": 2,
+      "quantity": 1,
+      "unit_price": 1890
+    },
+    {
+      "id": 25,
+      "booking_id": 5,
+      "amenity_id": 6,
+      "quantity": 1,
+      "unit_price": 2060
+    },
+    {
+      "id": 26,
+      "booking_id": 5,
+      "amenity_id": 5,
+      "quantity": 1,
+      "unit_price": 2750
     }
   ]
 }
